@@ -1,2 +1,2 @@
 # Project_LPPL
-LPPL project made by BISON, FLEX and C
+LPPL project programming compiler made using BISON, FLEX and C.
