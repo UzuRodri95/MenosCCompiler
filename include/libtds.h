@@ -13,6 +13,7 @@
 #define T_LOGICO      2
 #define T_ARRAY       3
 #define T_ERROR       4
+#define T_FUNCION     5
 /**************************************************** Categorias para la TdS */
 #define NULO          0
 #define VARIABLE      1

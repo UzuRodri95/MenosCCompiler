@@ -20,11 +20,13 @@ int Daux;
 
 %union{
     char *ident; //NOMBRE DEL IDENTIFICADOR
-    int cent;    //VALOR DE LA CTE NUMERICA ENTERA
-    EXP exp;     //PARA LAS EXPRESIONES
+    int cent;        //VALOR DE LA CTE NUMERICA ENTERA
+    EXP  exp;     //PARA LAS EXPRESIONES
     STR str;     //PARA LOS ELEMENTOS CON TALLA
     MAT mat;     //PARA CONSTANTE
 }
+
+
 
 %token WHILE_ FOR_ IF_ ELSE_  PRINT_ READ_ RETURN_ 
 %token ALLAVE_  CLLAVE_ ACORCH_  CCORCH_ APAREN_ CPAREN_ PTOCOMA_ PTO_ CMA_
@@ -74,6 +76,10 @@ declaracion                     : declaracionVariable{
                                 ;
 
 declaracionVariable             : tipoSimple ID_ PTOCOMA_{
+                                        yyerror("declaracionVariable: ");
+                                        mostrarTdS();
+                                        cargaContexto(niv);
+
                                         if(insTdS($2,VARIABLE,$1.t,niv,dvar,-1)){
                                             $$.n = $2;
                                             $$.talla = $$.talla + TALLA_TIPO_SIMPLE;
@@ -81,6 +87,9 @@ declaracionVariable             : tipoSimple ID_ PTOCOMA_{
                                             $$.t = T_ERROR;
                                             yyerror("La variable ya ha sido declarada");
                                         }
+                                         descargaContexto(niv);
+                                        yyerror("/declaracionVariable: ");
+                                        mostrarTdS();
                                     }
                                 | tipoSimple ID_ ACORCH_ CTE_ CCORCH_ PTOCOMA_{
                                         int numelem = $4;
@@ -103,9 +112,10 @@ declaracionVariable             : tipoSimple ID_ PTOCOMA_{
                                     }
                                 ;
 
-tipoSimple                      : INT_ {                                   
+tipoSimple                      : INT_ {        
                                     $$.t = T_ENTERO;
-                                    $$.talla = TALLA_TIPO_SIMPLE;
+                                    $$.talla = TALLA_TIPO_SIMPLE;    
+
                                     }
                                 | BOOL_{
                                     $$.t = T_LOGICO;
@@ -121,51 +131,60 @@ declaracionFuncion              : cabeceraFuncion bloque {
 
 cabeceraFuncion                 : tipoSimple ID_ APAREN_ parametrosFormales CPAREN_{
                                        //printf("Estamos en cabeceraFunció\n");  
-                                       yyerror("cabeceraFuncion");           
-                                    
-                                        
+                                       // yyerror("cabeceraFuncion");    
+                                        yyerror("cabeceraFuncion");
+                                              
+                                          printf("$2: %s", $2);
+                                          
+                                       /*
+                                        SIMB simb = obtTdS($2) ;
                                        
-                                      
-                                        printf("Nivel: %i: ",niv);
-                                        yyerror("/niv");  
-                                        cargaContexto(niv);
-                                        descargaContexto(niv); 
-                                       if(insTdS($2,FUNCION,$1.t,niv,$4.talla,-1)){
-                                           niv++;
+
+                                        printf("Tipo a: %i",simb.t);
+                                        yyerror("/cabeceraFuncion");
+                                       // insTdS(b.nom,FUNCION,b.tipo,niv,b.tsp,-1);
+                                       
+                                        */
+                                          //insTdS( a., T_VACIO);
+                                         mostrarTdS(); 
+                                         yyerror("LLEGO 1");
+                                       if(1<2){
                                            $$.n = $2;
                                            $$.t = $1.t;
                                            $$.talla = $4.talla;
-                                            yyerror("cabeceraFuncion");                                           
-                                            mostrarTdS();     
-                                                                                 
-                                            yyerror("/cabeceraFuncion");
-                                            niv++;
-                                          
+                                           yyerror("LLEGO 12");
+                                       }                                 
                                            
-                                       }
                                        else{
                                            $$.t = T_ERROR;
                                            yyerror("Ya existe variable, se ha declarado previamente");
                                        }
-                                       mostrarTdS();
-                                      
+                                        
                                     }
                                 ;
 
 parametrosFormales              : /* vacio */{
                                         $$.t = T_VACIO;
                                         $$.talla = 0;
+                                 
                                     }
                                 | listaParametrosFormales{
                                         $$.t = $1.t;
                                         $$.talla =  $$.talla - TALLA_SEGENLACES;
+                              
+                                        
                                     }
                                 ;
 
 listaParametrosFormales         : tipoSimple ID_{
+                    
+                                   
+                                        
                                     $$.t = $1.t;
                                     $$.talla = TALLA_SEGENLACES + $1.talla;
                                     insTdS($2,PARAMETRO,$1.t,niv,-$$.talla,-1);
+                                                    
+                                   
                                 }
                                 | tipoSimple ID_ CMA_ listaParametrosFormales{
                                     // if($1.t == $4.t && $1.t != T_ERROR){
@@ -177,12 +196,13 @@ listaParametrosFormales         : tipoSimple ID_{
                                 ;
 
 bloque                          : {
-                                    niv++;
+                                    niv++;                                    
                                     cargaContexto(niv);
                                     Daux = dvar; 
                                     dvar = 0;
                                 }
                                 | ALLAVE_ declaracionVariableLocal listaInstrucciones RETURN_ expresion PTOCOMA_ CLLAVE_{
+                                    yyerror("Bloque");
                                     niv--;
                                     descargaContexto(niv);
                                     dvar = Daux;
@@ -193,9 +213,12 @@ declaracionVariableLocal        : /* vacio */ {
 
                                 }
                                 | declaracionVariableLocal declaracionVariable{
+                                           yyerror("declaracionVariableLocal");
+                                    printf("val: %i",niv);
                                         if(insTdS($1.n,VARIABLE,$2.t,niv,dvar,-1)){
                                           dvar += TALLA_TIPO_SIMPLE;
                                         }
+                                        
                                     }
                                 ;
 
@@ -486,8 +509,8 @@ expresionSufija                 : APAREN_ expresion CPAREN_{
                                     }
                                 ;
 
-parametrosActuales              : /* vacı́o */{
-                                    $$ = T_VACIO;
+parametrosActuales              : /* vacı́o */{                                    
+                                    $$ = T_VACIO;                                     
                                 }
                                 | listaParametrosActuales{
                                     $$ = $1.t;

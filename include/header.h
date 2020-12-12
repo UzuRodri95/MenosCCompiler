@@ -35,6 +35,8 @@ extern int verbosidad;                   /* Flag si se desea una traza       */
 
 extern void yyerror(const char * msg) ;      /* Tratamiento de errores       */
 
+
+
 #endif  /* _HEADER_H */
 /*****************************************************************************/
 /*****************************************************************************/
