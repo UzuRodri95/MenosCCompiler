@@ -129,44 +129,44 @@ extern int yydebug;
     FOR_ = 259,
     IF_ = 260,
     ELSE_ = 261,
-    TRUE_ = 262,
-    FALSE_ = 263,
-    PRINT_ = 264,
-    READ_ = 265,
-    RETURN_ = 266,
-    ALLAVE_ = 267,
-    CLLAVE_ = 268,
-    ACORCH_ = 269,
-    CCORCH_ = 270,
-    APAREN_ = 271,
-    CPAREN_ = 272,
-    PTOCOMA_ = 273,
-    PTO_ = 274,
-    CMA_ = 275,
-    MAS_ = 276,
-    MENOS_ = 277,
-    POR_ = 278,
-    DIV_ = 279,
-    AND_ = 280,
-    OR_ = 281,
-    SUMASIG_ = 282,
-    RESASIG_ = 283,
-    MULASIG_ = 284,
-    DIVASIG_ = 285,
-    IGU_ = 286,
-    NOIGU_ = 287,
-    MAYIGU_ = 288,
-    MENIGU_ = 289,
-    INC_ = 290,
-    DEC_ = 291,
-    MAY_ = 292,
-    MEN_ = 293,
-    ASIG_ = 294,
-    NOT_ = 295,
-    MOD_ = 296,
-    INT_ = 297,
-    BOOL_ = 298,
-    CTE_ = 299,
+    PRINT_ = 262,
+    READ_ = 263,
+    RETURN_ = 264,
+    ALLAVE_ = 265,
+    CLLAVE_ = 266,
+    ACORCH_ = 267,
+    CCORCH_ = 268,
+    APAREN_ = 269,
+    CPAREN_ = 270,
+    PTOCOMA_ = 271,
+    PTO_ = 272,
+    CMA_ = 273,
+    MAS_ = 274,
+    MENOS_ = 275,
+    POR_ = 276,
+    DIV_ = 277,
+    AND_ = 278,
+    OR_ = 279,
+    SUMASIG_ = 280,
+    RESASIG_ = 281,
+    MULASIG_ = 282,
+    DIVASIG_ = 283,
+    IGU_ = 284,
+    NOIGU_ = 285,
+    MAYIGU_ = 286,
+    MENIGU_ = 287,
+    INC_ = 288,
+    DEC_ = 289,
+    MAY_ = 290,
+    MEN_ = 291,
+    ASIG_ = 292,
+    NOT_ = 293,
+    MOD_ = 294,
+    INT_ = 295,
+    BOOL_ = 296,
+    CTE_ = 297,
+    TRUE_ = 298,
+    FALSE_ = 299,
     ID_ = 300
   };
 #endif
@@ -564,14 +564,14 @@ static const yytype_int8 yytranslate[] =
 static const yytype_int16 yyrline[] =
 {
        0,    51,    51,    55,    60,    63,    68,    71,    76,    85,
-     106,   110,   116,   121,   134,   138,   144,   149,   158,   164,
-     171,   174,   181,   184,   189,   192,   195,   198,   201,   206,
-     213,   222,   228,   237,   247,   262,   265,   268,   287,   290,
-     307,   310,   327,   330,   346,   349,   360,   363,   377,   380,
-     399,   411,   414,   425,   442,   453,   463,   468,   471,   476,
-     479,   485,   489,   493,   499,   500,   503,   504,   507,   508,
-     509,   510,   513,   514,   517,   518,   521,   522,   523,   526,
-     527
+     106,   110,   116,   122,   141,   145,   151,   156,   165,   171,
+     178,   181,   188,   191,   196,   199,   202,   205,   208,   213,
+     220,   229,   235,   244,   254,   269,   272,   275,   294,   297,
+     314,   317,   334,   337,   353,   356,   367,   370,   384,   387,
+     406,   418,   421,   432,   449,   460,   470,   475,   478,   483,
+     486,   492,   496,   500,   506,   507,   510,   511,   514,   515,
+     516,   517,   520,   521,   524,   525,   528,   529,   530,   533,
+     534
 };
 #endif
 
@@ -581,13 +581,13 @@ static const yytype_int16 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "WHILE_", "FOR_", "IF_", "ELSE_",
-  "TRUE_", "FALSE_", "PRINT_", "READ_", "RETURN_", "ALLAVE_", "CLLAVE_",
-  "ACORCH_", "CCORCH_", "APAREN_", "CPAREN_", "PTOCOMA_", "PTO_", "CMA_",
-  "MAS_", "MENOS_", "POR_", "DIV_", "AND_", "OR_", "SUMASIG_", "RESASIG_",
-  "MULASIG_", "DIVASIG_", "IGU_", "NOIGU_", "MAYIGU_", "MENIGU_", "INC_",
-  "DEC_", "MAY_", "MEN_", "ASIG_", "NOT_", "MOD_", "INT_", "BOOL_", "CTE_",
-  "ID_", "$accept", "programa", "listaDeclaraciones", "declaracion",
-  "declaracionVariable", "tipoSimple", "declaracionFuncion",
+  "PRINT_", "READ_", "RETURN_", "ALLAVE_", "CLLAVE_", "ACORCH_", "CCORCH_",
+  "APAREN_", "CPAREN_", "PTOCOMA_", "PTO_", "CMA_", "MAS_", "MENOS_",
+  "POR_", "DIV_", "AND_", "OR_", "SUMASIG_", "RESASIG_", "MULASIG_",
+  "DIVASIG_", "IGU_", "NOIGU_", "MAYIGU_", "MENIGU_", "INC_", "DEC_",
+  "MAY_", "MEN_", "ASIG_", "NOT_", "MOD_", "INT_", "BOOL_", "CTE_",
+  "TRUE_", "FALSE_", "ID_", "$accept", "programa", "listaDeclaraciones",
+  "declaracion", "declaracionVariable", "tipoSimple", "declaracionFuncion",
   "cabeceraFuncion", "parametrosFormales", "listaParametrosFormales",
   "bloque", "declaracionVariableLocal", "listaInstrucciones",
   "instruccion", "instruccionAsignacion", "instruccionEntradaSalida",
@@ -628,20 +628,20 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-      15,   -91,   -91,    10,    15,   -91,   -91,   -30,   -91,     8,
-     -91,   -91,   115,   -91,   -91,   -10,    15,   -91,    15,    64,
-      -6,    69,   -91,   -91,    36,    -3,    51,    72,   -91,    37,
-      82,    87,    92,    97,    40,   -91,    11,   -91,   -91,   -91,
-     -91,   -91,   -91,    15,    66,    40,    40,    85,   -91,   -91,
-      40,   -91,   -91,   -91,   -91,   -91,   -91,    54,    89,    34,
-      90,   113,    98,   -91,   -91,   -91,    40,    93,     9,    40,
-      40,   -91,    24,   114,   111,    27,    74,   122,    79,    40,
-      40,   -91,   127,   -91,   -91,    40,   -91,   -91,    40,   -91,
+      -9,   -91,   -91,     3,    -9,   -91,   -91,   -36,   -91,    10,
+     -91,   -91,    53,   -91,   -91,    16,    -9,   -91,    -9,    26,
+      41,    46,   -91,   -91,    51,    -3,    89,    92,   -91,    65,
+     105,   119,   120,   121,    40,   -91,     1,   -91,   -91,   -91,
+     -91,   -91,   -91,    -9,    56,    40,    40,    94,    40,   -91,
+     -91,   -91,   -91,   -91,   -91,   -91,   -91,    90,    93,     4,
+      96,    60,    71,   -91,   -91,   -91,    40,    95,    11,    40,
+      40,   -91,    54,   122,    84,    29,    88,   126,    91,    40,
+      40,   -91,   125,   -91,   -91,    40,   -91,   -91,    40,   -91,
      -91,   -91,   -91,    40,   -91,   -91,    40,   -91,   -91,    40,
-     -91,   -91,   -91,    52,    91,    40,    40,    19,   123,   124,
-     -91,    68,     7,   126,   -91,   -91,    34,    90,   113,    98,
-     -91,   105,   -91,   111,    94,   139,   -91,   -91,   -91,    40,
-     -91,    40,    66,    19,   -91,   100,   129,   -91,   -91,    19,
+     -91,   -91,   -91,    24,    97,    40,    40,    19,   127,   128,
+     -91,    27,    39,   130,   -91,   -91,     4,    96,    60,    71,
+     -91,   100,   -91,    84,   102,   136,   -91,   -91,   -91,    40,
+     -91,    40,    56,    19,   -91,   106,   131,   -91,   -91,    19,
      -91
 };
 
@@ -654,8 +654,8 @@ static const yytype_int8 yydefact[] =
        1,     5,     0,    20,    12,     0,    14,     8,    22,     0,
        0,     0,    15,    21,     0,     0,     0,    16,    13,     0,
        0,     0,     0,     0,     0,    22,     0,    23,    25,    27,
-      26,    28,     9,     0,    35,     0,     0,     0,    62,    63,
-       0,    76,    77,    79,    80,    78,    61,    55,     0,    38,
+      26,    28,     9,     0,    35,     0,     0,     0,     0,    76,
+      77,    79,    80,    78,    61,    62,    63,    55,     0,    38,
       40,    42,    44,    46,    48,    56,     0,     0,     0,     0,
        0,    17,    55,     0,    36,     0,     0,     0,     0,     0,
       57,    52,     0,    64,    65,     0,    66,    67,     0,    70,
@@ -670,10 +670,10 @@ static const yytype_int8 yydefact[] =
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-     -91,   -91,   -91,   143,   130,   -13,   -91,   -91,   -91,   106,
-     -91,   -91,   116,   -90,   -91,   -91,   -91,   -91,    18,   -34,
-      67,    65,    61,    59,   -62,   -91,   -91,    28,   -91,   -91,
-     -91,   -91,   -91,   -91,   -91,   -31
+     -91,   -91,   -91,   143,   132,    12,   -91,   -91,   -91,   108,
+     -91,   -91,   113,   -90,   -91,   -91,   -91,   -91,    17,   -34,
+      67,    66,    62,    57,   -58,   -91,   -91,    28,   -91,   -91,
+     -91,   -91,   -91,   -91,   -91,   -47
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
@@ -690,62 +690,62 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-      58,    30,    31,    20,   100,    24,    32,    33,    34,    35,
-      10,    75,    76,    30,    31,    12,    78,   125,    32,    33,
-      13,    35,   102,    30,    31,    69,    81,   129,    32,    33,
-      20,    35,    83,    84,    19,   103,   104,   120,    79,    27,
-      80,    81,    36,   137,   107,   111,   112,    48,    49,   140,
-      70,    15,    83,    84,    36,    17,    50,     1,     2,    53,
-      54,    51,    52,   105,    36,    86,    87,   121,    79,    42,
-      80,   123,   124,    48,    49,    53,    54,    83,    84,    26,
-      55,    29,    50,   128,    56,    57,    28,    51,    52,    53,
-      54,   108,    43,    83,    84,   112,   110,   135,    44,    83,
-      84,    53,    54,    45,    83,    84,    55,    82,    46,   122,
-      56,    72,   132,    47,    83,    84,    83,    84,   138,    83,
-      84,    97,    98,    89,    90,    83,    84,    91,    92,    15,
-      77,    16,   106,    17,    94,    95,    83,    84,   101,   109,
-     115,   126,   127,   130,   131,   133,   139,    11,    23,    71,
-     136,    68,   116,   117,   118,   119,     0,   134
+      58,    30,    31,    10,    32,    33,    34,    35,   100,    12,
+      81,    75,    76,    69,    78,    30,    31,   125,    32,    33,
+      13,    35,   102,    30,    31,    81,    32,    33,    20,    35,
+      24,     1,     2,    86,    87,   103,   104,   121,    70,    26,
+     128,   120,    36,   137,   107,   111,   112,    83,    84,   140,
+      83,    84,    83,    84,    48,    20,    36,   129,    19,    49,
+      50,    28,    83,    84,    36,    15,    79,    16,    80,    17,
+      48,   123,   124,    51,    52,    49,    50,    15,    53,    94,
+      95,    17,    54,    55,    56,    57,    27,    51,    52,    51,
+      52,   105,    97,    98,    53,   112,    29,   135,    54,    55,
+      56,    72,    79,   108,    80,    42,   110,    83,    84,    82,
+      43,    83,    84,   122,    83,    84,    83,    84,   132,    44,
+      83,    84,   138,    51,    52,    83,    84,    89,    90,    83,
+      84,    91,    92,    45,    46,    47,   115,   131,   106,    77,
+     101,   109,   133,   126,   127,   130,   139,    11,    68,   136,
+      23,    71,   116,   119,   117,   118,     0,   134
 };
 
 static const yytype_int16 yycheck[] =
 {
-      34,     4,     5,    16,    66,    18,     9,    10,    11,    12,
-       0,    45,    46,     4,     5,    45,    50,   107,     9,    10,
-      12,    12,    13,     4,     5,    14,    57,    20,     9,    10,
-      43,    12,    25,    26,    44,    69,    70,    99,    14,    45,
-      16,    72,    45,   133,    17,    79,    80,     7,     8,   139,
-      39,    14,    25,    26,    45,    18,    16,    42,    43,    35,
-      36,    21,    22,    39,    45,    31,    32,    15,    14,    18,
-      16,   105,   106,     7,     8,    35,    36,    25,    26,    15,
-      40,    45,    16,    15,    44,    45,    17,    21,    22,    35,
-      36,    17,    20,    25,    26,   129,    17,   131,    16,    25,
-      26,    35,    36,    16,    25,    26,    40,    18,    16,    18,
-      44,    45,    18,    16,    25,    26,    25,    26,    18,    25,
-      26,    23,    24,    33,    34,    25,    26,    37,    38,    14,
-      45,    16,    18,    18,    21,    22,    25,    26,    45,    17,
-      13,    18,    18,    17,    39,     6,    17,     4,    18,    43,
-     132,    35,    85,    88,    93,    96,    -1,   129
+      34,     4,     5,     0,     7,     8,     9,    10,    66,    45,
+      57,    45,    46,    12,    48,     4,     5,   107,     7,     8,
+      10,    10,    11,     4,     5,    72,     7,     8,    16,    10,
+      18,    40,    41,    29,    30,    69,    70,    13,    37,    13,
+      13,    99,    45,   133,    15,    79,    80,    23,    24,   139,
+      23,    24,    23,    24,    14,    43,    45,    18,    42,    19,
+      20,    15,    23,    24,    45,    12,    12,    14,    14,    16,
+      14,   105,   106,    33,    34,    19,    20,    12,    38,    19,
+      20,    16,    42,    43,    44,    45,    45,    33,    34,    33,
+      34,    37,    21,    22,    38,   129,    45,   131,    42,    43,
+      44,    45,    12,    15,    14,    16,    15,    23,    24,    16,
+      18,    23,    24,    16,    23,    24,    23,    24,    16,    14,
+      23,    24,    16,    33,    34,    23,    24,    31,    32,    23,
+      24,    35,    36,    14,    14,    14,    11,    37,    16,    45,
+      45,    15,     6,    16,    16,    15,    15,     4,    35,   132,
+      18,    43,    85,    96,    88,    93,    -1,   129
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,    42,    43,    47,    48,    49,    50,    51,    52,    53,
-       0,    49,    45,    12,    56,    14,    16,    18,    57,    44,
-      51,    54,    55,    50,    51,    58,    15,    45,    17,    45,
-       4,     5,     9,    10,    11,    12,    45,    59,    60,    61,
-      62,    63,    18,    20,    16,    16,    16,    16,     7,     8,
-      16,    21,    22,    35,    36,    40,    44,    45,    65,    66,
-      67,    68,    69,    70,    71,    74,    80,    81,    58,    14,
-      39,    55,    45,    64,    65,    65,    65,    45,    65,    14,
-      16,    81,    18,    25,    26,    75,    31,    32,    76,    33,
-      34,    37,    38,    77,    21,    22,    78,    23,    24,    79,
-      70,    45,    13,    65,    65,    39,    18,    17,    17,    17,
-      17,    65,    65,    72,    73,    13,    66,    67,    68,    69,
-      70,    15,    18,    65,    65,    59,    18,    18,    15,    20,
-      17,    39,    18,     6,    73,    65,    64,    59,    18,    17,
+       0,    40,    41,    47,    48,    49,    50,    51,    52,    53,
+       0,    49,    45,    10,    56,    12,    14,    16,    57,    42,
+      51,    54,    55,    50,    51,    58,    13,    45,    15,    45,
+       4,     5,     7,     8,     9,    10,    45,    59,    60,    61,
+      62,    63,    16,    18,    14,    14,    14,    14,    14,    19,
+      20,    33,    34,    38,    42,    43,    44,    45,    65,    66,
+      67,    68,    69,    70,    71,    74,    80,    81,    58,    12,
+      37,    55,    45,    64,    65,    65,    65,    45,    65,    12,
+      14,    81,    16,    23,    24,    75,    29,    30,    76,    31,
+      32,    35,    36,    77,    19,    20,    78,    21,    22,    79,
+      70,    45,    11,    65,    65,    37,    16,    15,    15,    15,
+      15,    65,    65,    72,    73,    11,    66,    67,    68,    69,
+      70,    13,    16,    65,    65,    59,    16,    16,    13,    18,
+      15,    37,    16,     6,    73,    65,    64,    59,    16,    15,
       59
 };
 
@@ -1558,7 +1558,7 @@ yyreduce:
 
   case 10:
 #line 106 "src/asin.y"
-                                       {
+                                       {                                   
                                     (yyval.str).t = T_ENTERO;
                                     (yyval.str).talla = TALLA_TIPO_SIMPLE;
                                     }
@@ -1578,56 +1578,63 @@ yyreduce:
 #line 116 "src/asin.y"
                                                          {
                                         /*  vacio   */
+                                        
                                     }
-#line 1583 "asin.c"
+#line 1584 "asin.c"
     break;
 
   case 13:
-#line 121 "src/asin.y"
+#line 122 "src/asin.y"
                                                                                    {
+                                       //printf("Estamos en cabeceraFunció\n");  
+                                       // yyerror("cabeceraFuncion");           
+                                    
+                                        mostrarTdS();
+                                
                                        if(insTdS((yyvsp[-3].ident),FUNCION,(yyvsp[-4].str).t,niv,(yyvsp[-1].str).talla,-1)){
                                            (yyval.str).n = (yyvsp[-3].ident);
                                            (yyval.str).t = (yyvsp[-4].str).t;
                                            (yyval.str).talla = (yyvsp[-1].str).talla;
+                                            yyerror("cabeceraFuncion");
                                        }
                                        else{
                                            (yyval.str).t = T_ERROR;
                                            yyerror("Ya existe variable, se ha declarado previamente");
                                        }
                                     }
-#line 1599 "asin.c"
+#line 1606 "asin.c"
     break;
 
   case 14:
-#line 134 "src/asin.y"
+#line 141 "src/asin.y"
                                              {
                                         (yyval.str).t = T_VACIO;
                                         (yyval.str).talla = 0;
                                     }
-#line 1608 "asin.c"
+#line 1615 "asin.c"
     break;
 
   case 15:
-#line 138 "src/asin.y"
+#line 145 "src/asin.y"
                                                          {
                                         (yyval.str).t = (yyvsp[0].str).t;
                                         (yyval.str).talla =  (yyval.str).talla - TALLA_SEGENLACES;
                                     }
-#line 1617 "asin.c"
+#line 1624 "asin.c"
     break;
 
   case 16:
-#line 144 "src/asin.y"
+#line 151 "src/asin.y"
                                                 {
                                     (yyval.str).t = (yyvsp[-1].str).t;
                                     (yyval.str).talla = TALLA_SEGENLACES + (yyvsp[-1].str).talla;
                                     insTdS((yyvsp[0].ident),PARAMETRO,(yyvsp[-1].str).t,niv,-(yyval.str).talla,-1);
                                 }
-#line 1627 "asin.c"
+#line 1634 "asin.c"
     break;
 
   case 17:
-#line 149 "src/asin.y"
+#line 156 "src/asin.y"
                                                                              {
                                     if((yyvsp[-3].str).t == (yyvsp[0].str).t && (yyvsp[-3].str).t != T_ERROR){
                                         (yyval.str).t == (yyvsp[-3].str).t;
@@ -1635,141 +1642,141 @@ yyreduce:
                                         insTdS((yyvsp[-2].ident),PARAMETRO,(yyvsp[-3].str).t,niv,-(yyval.str).talla,-1);
                                     }
                                 }
-#line 1639 "asin.c"
+#line 1646 "asin.c"
     break;
 
   case 18:
-#line 158 "src/asin.y"
+#line 165 "src/asin.y"
                                   {
                                     niv++;
                                     cargaContexto(niv);
                                     Daux = dvar; 
                                     dvar = 0;
                                 }
-#line 1650 "asin.c"
+#line 1657 "asin.c"
     break;
 
   case 19:
-#line 164 "src/asin.y"
+#line 171 "src/asin.y"
                                                                                                                         {
                                     niv--;
                                     descargaContexto(niv);
                                     dvar = Daux;
                                 }
-#line 1660 "asin.c"
+#line 1667 "asin.c"
     break;
 
   case 20:
-#line 171 "src/asin.y"
+#line 178 "src/asin.y"
                                               {
 
                                 }
-#line 1668 "asin.c"
+#line 1675 "asin.c"
     break;
 
   case 21:
-#line 174 "src/asin.y"
+#line 181 "src/asin.y"
                                                                               {
                                         if(insTdS((yyvsp[-1].str).n,VARIABLE,(yyvsp[0].str).t,niv,dvar,-1)){
                                           dvar += TALLA_TIPO_SIMPLE;
                                         }
                                     }
-#line 1678 "asin.c"
+#line 1685 "asin.c"
     break;
 
   case 22:
-#line 181 "src/asin.y"
+#line 188 "src/asin.y"
                                              {
 
                                 }
-#line 1686 "asin.c"
+#line 1693 "asin.c"
     break;
 
   case 23:
-#line 184 "src/asin.y"
+#line 191 "src/asin.y"
                                                                 {
                                     /*  vacio   */
                                 }
-#line 1694 "asin.c"
+#line 1701 "asin.c"
     break;
 
   case 24:
-#line 189 "src/asin.y"
+#line 196 "src/asin.y"
                                                                     {
 
                                 }
-#line 1702 "asin.c"
+#line 1709 "asin.c"
     break;
 
   case 25:
-#line 192 "src/asin.y"
+#line 199 "src/asin.y"
                                                        {
 
                                 }
-#line 1710 "asin.c"
+#line 1717 "asin.c"
     break;
 
   case 26:
-#line 195 "src/asin.y"
+#line 202 "src/asin.y"
                                                       {
 
                                 }
-#line 1718 "asin.c"
+#line 1725 "asin.c"
     break;
 
   case 27:
-#line 198 "src/asin.y"
+#line 205 "src/asin.y"
                                                           {
 
                                 }
-#line 1726 "asin.c"
+#line 1733 "asin.c"
     break;
 
   case 28:
-#line 201 "src/asin.y"
+#line 208 "src/asin.y"
                                                       {
 
                                 }
-#line 1734 "asin.c"
+#line 1741 "asin.c"
     break;
 
   case 29:
-#line 206 "src/asin.y"
+#line 213 "src/asin.y"
                                                               {
                                         SIMB simb = obtTdS((yyvsp[-3].ident));
                                         if(simb.t == T_ERROR)
                                             yyerror("Objeto no declarado");
-                                        else if (! ((simb.t == (yyvsp[-1].exp).t == T_ENTERO) || (simb.t == (yyvsp[-1].exp).t == T_LOGICO)))
+                                        else if (! (((simb.t == (yyvsp[-1].exp).t) && ((yyvsp[-1].exp).t == T_ENTERO))|| ((simb.t == (yyvsp[-1].exp).t) && ((yyvsp[-1].exp).t == T_LOGICO))))
                                             yyerror("Error de tipos en instruccion de asignacion");
                                     }
-#line 1746 "asin.c"
+#line 1753 "asin.c"
     break;
 
   case 30:
-#line 213 "src/asin.y"
+#line 220 "src/asin.y"
                                                                                         {
                                         SIMB simb = obtTdS((yyvsp[-6].ident));
                                         if(simb.t == T_ERROR)
                                             yyerror("Objeto no declarado");
-                                        else if (! ((simb.t == (yyvsp[-4].exp).t == T_ENTERO) ||(simb.t == (yyvsp[-4].exp).t == T_LOGICO)))
+                                        else if (! (((simb.t == (yyvsp[-4].exp).t) && ((yyvsp[-4].exp).t == T_ENTERO))|| ((simb.t == (yyvsp[-4].exp).t) && ((yyvsp[-4].exp).t == T_LOGICO))))
                                             yyerror("Error de tipos en instruccion de asignacion");
                                     }
-#line 1758 "asin.c"
+#line 1765 "asin.c"
     break;
 
   case 31:
-#line 222 "src/asin.y"
+#line 229 "src/asin.y"
                                                                     {
                                     SIMB sim = obtTdS((yyvsp[-2].ident));
                                     if (sim.t != T_ENTERO) {
                                         yyerror("identificador no valido para la instruccion entrada : se esperaba identificador entero");
                                     }
                                 }
-#line 1769 "asin.c"
+#line 1776 "asin.c"
     break;
 
   case 32:
-#line 228 "src/asin.y"
+#line 235 "src/asin.y"
                                                                            {
                                     if ((yyvsp[-2].exp).t != T_ERROR) { 
                                         if ((yyvsp[-2].exp).t != T_ENTERO) {
@@ -1777,11 +1784,11 @@ yyreduce:
                                         } 
                                     }
                                 }
-#line 1781 "asin.c"
+#line 1788 "asin.c"
     break;
 
   case 33:
-#line 237 "src/asin.y"
+#line 244 "src/asin.y"
                                                                                              {
                                     if((yyvsp[-4].exp).t != T_ERROR){
                                         if((yyvsp[-4].exp).t != T_LOGICO){
@@ -1790,11 +1797,11 @@ yyreduce:
                                     }
                                     
                                 }
-#line 1794 "asin.c"
+#line 1801 "asin.c"
     break;
 
   case 34:
-#line 247 "src/asin.y"
+#line 254 "src/asin.y"
                                                                                                                                   {
                                         if((yyvsp[-4].exp).t == T_LOGICO){
                                             if(((yyvsp[-6].exp).t != T_ERROR || (yyvsp[-6].exp).t == T_VACIO ) && ((yyvsp[-2].exp).t != T_ERROR || (yyvsp[-2].exp).t == T_VACIO )){
@@ -1808,27 +1815,27 @@ yyreduce:
                                             yyerror("Error en el operador lógico");
                                         }
                                     }
-#line 1812 "asin.c"
+#line 1819 "asin.c"
     break;
 
   case 35:
-#line 262 "src/asin.y"
+#line 269 "src/asin.y"
                                                 {
 
                                 }
-#line 1820 "asin.c"
+#line 1827 "asin.c"
     break;
 
   case 36:
-#line 265 "src/asin.y"
+#line 272 "src/asin.y"
                                            {
                                     (yyval.exp).t = (yyvsp[0].exp).t;
                                 }
-#line 1828 "asin.c"
+#line 1835 "asin.c"
     break;
 
   case 37:
-#line 268 "src/asin.y"
+#line 275 "src/asin.y"
                                                      {
                                     (yyval.exp).t = T_ERROR;
                                     SIMB simb = obtTdS((yyvsp[-2].ident));
@@ -1846,19 +1853,19 @@ yyreduce:
                                         }
                                     } 
                                 }
-#line 1850 "asin.c"
+#line 1857 "asin.c"
     break;
 
   case 38:
-#line 287 "src/asin.y"
+#line 294 "src/asin.y"
                                                    {
                                     (yyval.exp).t = (yyvsp[0].exp).t;
                                 }
-#line 1858 "asin.c"
+#line 1865 "asin.c"
     break;
 
   case 39:
-#line 290 "src/asin.y"
+#line 297 "src/asin.y"
                                                                             {
                                     (yyval.exp).t = T_ERROR;
                                     if ((yyvsp[-2].exp).t != T_ERROR && (yyvsp[0].exp).t != T_ERROR) {
@@ -1874,19 +1881,19 @@ yyreduce:
                                         (yyval.exp).t = T_LOGICO;
                                     }   
                                 }
-#line 1878 "asin.c"
+#line 1885 "asin.c"
     break;
 
   case 40:
-#line 307 "src/asin.y"
+#line 314 "src/asin.y"
                                                      {
                                     (yyval.exp).t = (yyvsp[0].exp).t;
                                 }
-#line 1886 "asin.c"
+#line 1893 "asin.c"
     break;
 
   case 41:
-#line 310 "src/asin.y"
+#line 317 "src/asin.y"
                                                                                         {
                                     (yyval.exp).t = T_ERROR;
                                     if ((yyvsp[-2].exp).t != T_ERROR && (yyvsp[0].exp).t != T_ERROR) {
@@ -1902,19 +1909,19 @@ yyreduce:
                                         (yyval.exp).t = T_LOGICO;
                                     }                                     
                                 }
-#line 1906 "asin.c"
+#line 1913 "asin.c"
     break;
 
   case 42:
-#line 327 "src/asin.y"
+#line 334 "src/asin.y"
                                                    {
                                     (yyval.exp).t = (yyvsp[0].exp).t; 
                                 }
-#line 1914 "asin.c"
+#line 1921 "asin.c"
     break;
 
   case 43:
-#line 330 "src/asin.y"
+#line 337 "src/asin.y"
                                                                                          {
                                     (yyval.exp).t = T_ERROR;
                                     if ((yyvsp[-2].exp).t != T_ERROR && (yyvsp[0].exp).t != T_ERROR) {
@@ -1930,19 +1937,19 @@ yyreduce:
                                     }                                      
                                     }
                                 }
-#line 1934 "asin.c"
+#line 1941 "asin.c"
     break;
 
   case 44:
-#line 346 "src/asin.y"
+#line 353 "src/asin.y"
                                                             { 
                                     (yyval.exp).t = (yyvsp[0].exp).t; 
                                 }
-#line 1942 "asin.c"
+#line 1949 "asin.c"
     break;
 
   case 45:
-#line 349 "src/asin.y"
+#line 356 "src/asin.y"
                                                                                           {
                                     (yyval.exp).t = T_ERROR;
                                     if ((yyvsp[-2].exp).t == (yyvsp[0].exp).t && (yyvsp[0].exp).t == T_ENTERO){
@@ -1952,19 +1959,19 @@ yyreduce:
                                         yyerror("Error de tipos en la expresion aditiva");
                                     }
                                 }
-#line 1956 "asin.c"
+#line 1963 "asin.c"
     break;
 
   case 46:
-#line 360 "src/asin.y"
+#line 367 "src/asin.y"
                                                  {
                                     (yyval.exp).t = (yyvsp[0].exp).t;
                                 }
-#line 1964 "asin.c"
+#line 1971 "asin.c"
     break;
 
   case 47:
-#line 363 "src/asin.y"
+#line 370 "src/asin.y"
                                                                                                 {
                                     (yyval.exp).t = T_ERROR;
                                     if ((yyvsp[-2].exp).t != T_ERROR && (yyvsp[0].exp).t != T_ERROR) {
@@ -1977,19 +1984,19 @@ yyreduce:
                                         }                                      
                                     }
                                 }
-#line 1981 "asin.c"
+#line 1988 "asin.c"
     break;
 
   case 48:
-#line 377 "src/asin.y"
+#line 384 "src/asin.y"
                                                  { 
                                     (yyval.exp).t = (yyvsp[0].exp).t;
                                 }
-#line 1989 "asin.c"
+#line 1996 "asin.c"
     break;
 
   case 49:
-#line 380 "src/asin.y"
+#line 387 "src/asin.y"
                                                                 {   
                                     (yyval.exp).t = T_ERROR;
                                     if ((yyvsp[0].exp).t != T_ERROR) {
@@ -2009,11 +2016,11 @@ yyreduce:
                                         }                                     
                                     }                                   
                                 }
-#line 2013 "asin.c"
+#line 2020 "asin.c"
     break;
 
   case 50:
-#line 399 "src/asin.y"
+#line 406 "src/asin.y"
                                                          {
                                     (yyval.exp).t = T_ERROR;
                                     SIMB simb = obtTdS((yyvsp[0].ident));
@@ -2024,19 +2031,19 @@ yyreduce:
                                         (yyval.exp).t = simb.t;
                                     }                                                   
                                 }
-#line 2028 "asin.c"
+#line 2035 "asin.c"
     break;
 
   case 51:
-#line 411 "src/asin.y"
+#line 418 "src/asin.y"
                                                            {
                                         (yyval.exp).t = (yyvsp[-1].exp).t;
                                     }
-#line 2036 "asin.c"
+#line 2043 "asin.c"
     break;
 
   case 52:
-#line 414 "src/asin.y"
+#line 421 "src/asin.y"
                                                         {
                                         (yyval.exp).t = T_ERROR;
                                         SIMB simb = obtTdS((yyvsp[-1].ident));
@@ -2048,11 +2055,11 @@ yyreduce:
                                             (yyval.exp).t = simb.t;
                                         }
                                     }
-#line 2052 "asin.c"
+#line 2059 "asin.c"
     break;
 
   case 53:
-#line 425 "src/asin.y"
+#line 432 "src/asin.y"
                                                                {
                                         (yyval.exp).t = T_ERROR;
                                         SIMB simb = obtTdS((yyvsp[-3].ident));
@@ -2070,11 +2077,11 @@ yyreduce:
                                             }
                                         }
                                     }
-#line 2074 "asin.c"
+#line 2081 "asin.c"
     break;
 
   case 54:
-#line 442 "src/asin.y"
+#line 449 "src/asin.y"
                                                                         {
                                         (yyval.exp).t = T_ERROR;
                                         SIMB simb = obtTdS((yyvsp[-3].ident));
@@ -2086,11 +2093,11 @@ yyreduce:
                                             (yyval.exp).t = simb.t;
                                         }
                                     }
-#line 2090 "asin.c"
+#line 2097 "asin.c"
     break;
 
   case 55:
-#line 453 "src/asin.y"
+#line 460 "src/asin.y"
                                       {
                                         (yyval.exp).t = T_ERROR;
                                         SIMB simb = obtTdS((yyvsp[0].ident));
@@ -2101,78 +2108,78 @@ yyreduce:
                                             (yyval.exp).t = simb.t;
                                         }
                                     }
-#line 2105 "asin.c"
+#line 2112 "asin.c"
     break;
 
   case 56:
-#line 463 "src/asin.y"
+#line 470 "src/asin.y"
                                            {
                                         (yyval.exp).t = (yyvsp[0].mat).t;
                                     }
-#line 2113 "asin.c"
+#line 2120 "asin.c"
     break;
 
   case 57:
-#line 468 "src/asin.y"
+#line 475 "src/asin.y"
                                                 {
                                     (yyval.cent) = T_VACIO;
                                 }
-#line 2121 "asin.c"
+#line 2128 "asin.c"
     break;
 
   case 58:
-#line 471 "src/asin.y"
+#line 478 "src/asin.y"
                                                          {
                                     (yyval.cent) = (yyvsp[0].str).t;
                                 }
-#line 2129 "asin.c"
+#line 2136 "asin.c"
     break;
 
   case 59:
-#line 476 "src/asin.y"
+#line 483 "src/asin.y"
                                            {
 
                                 }
-#line 2137 "asin.c"
+#line 2144 "asin.c"
     break;
 
   case 60:
-#line 479 "src/asin.y"
+#line 486 "src/asin.y"
                                                                         {
 
                                 }
-#line 2145 "asin.c"
+#line 2152 "asin.c"
     break;
 
   case 61:
-#line 485 "src/asin.y"
+#line 492 "src/asin.y"
                                           {
                                     (yyval.mat).t = T_ENTERO;
                                     (yyval.mat).v = (yyvsp[0].cent);
                                 }
-#line 2154 "asin.c"
+#line 2161 "asin.c"
     break;
 
   case 62:
-#line 489 "src/asin.y"
+#line 496 "src/asin.y"
                                           {
                                     (yyval.mat).t = T_LOGICO;
                                     (yyval.mat).v = (yyvsp[0].cent);
                                 }
-#line 2163 "asin.c"
+#line 2170 "asin.c"
     break;
 
   case 63:
-#line 493 "src/asin.y"
+#line 500 "src/asin.y"
                                           {
                                     (yyval.mat).t = T_LOGICO;
                                     (yyval.mat).v = (yyvsp[0].cent);
                                 }
-#line 2172 "asin.c"
+#line 2179 "asin.c"
     break;
 
 
-#line 2176 "asin.c"
+#line 2183 "asin.c"
 
       default: break;
     }
@@ -2404,5 +2411,5 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 530 "src/asin.y"
+#line 537 "src/asin.y"
 

@@ -26,10 +26,10 @@ int Daux;
     MAT mat;     //PARA CONSTANTE
 }
 
-%token WHILE_ FOR_ IF_ ELSE_ TRUE_ FALSE_ PRINT_ READ_ RETURN_ 
+%token WHILE_ FOR_ IF_ ELSE_  PRINT_ READ_ RETURN_ 
 %token ALLAVE_  CLLAVE_ ACORCH_  CCORCH_ APAREN_ CPAREN_ PTOCOMA_ PTO_ CMA_
-%token MAS_ MENOS_ POR_ DIV_
-%token AND_ OR_ SUMASIG_ RESASIG_ MULASIG_ DIVASIG_ IGU_ NOIGU_ MAYIGU_ MENIGU_ INC_ DEC_  MAY_ MEN_ ASIG_ NOT_ MOD_
+%token <cent>  MAS_ MENOS_ POR_ DIV_
+%token <cent>  AND_ OR_ SUMASIG_ RESASIG_ MULASIG_ DIVASIG_ IGU_ NOIGU_ MAYIGU_ MENIGU_ INC_ DEC_  MAY_ MEN_ ASIG_ NOT_ MOD_
 
 %token <cent> INT_ BOOL_ CTE_ TRUE_ FALSE_
 %type <cent> parametrosActuales
@@ -103,7 +103,7 @@ declaracionVariable             : tipoSimple ID_ PTOCOMA_{
                                     }
                                 ;
 
-tipoSimple                      : INT_ {
+tipoSimple                      : INT_ {                                   
                                     $$.t = T_ENTERO;
                                     $$.talla = TALLA_TIPO_SIMPLE;
                                     }
@@ -115,14 +115,21 @@ tipoSimple                      : INT_ {
 
 declaracionFuncion              : cabeceraFuncion bloque {
                                         /*  vacio   */
+                                        
                                     }
                                 ;
 
 cabeceraFuncion                 : tipoSimple ID_ APAREN_ parametrosFormales CPAREN_{
+                                       //printf("Estamos en cabeceraFunció\n");  
+                                       // yyerror("cabeceraFuncion");           
+                                    
+                                        mostrarTdS();
+                                
                                        if(insTdS($2,FUNCION,$1.t,niv,$4.talla,-1)){
                                            $$.n = $2;
                                            $$.t = $1.t;
                                            $$.talla = $4.talla;
+                                            yyerror("cabeceraFuncion");
                                        }
                                        else{
                                            $$.t = T_ERROR;
@@ -207,14 +214,14 @@ instruccionAsignacion           : ID_ ASIG_ expresion PTOCOMA_{
                                         SIMB simb = obtTdS($1);
                                         if(simb.t == T_ERROR)
                                             yyerror("Objeto no declarado");
-                                        else if (! ((simb.t == $3.t == T_ENTERO) || (simb.t == $3.t == T_LOGICO)))
+                                        else if (! (((simb.t == $3.t) && ($3.t == T_ENTERO))|| ((simb.t == $3.t) && ($3.t == T_LOGICO))))
                                             yyerror("Error de tipos en instruccion de asignacion");
                                     }
                                 | ID_ ACORCH_ expresion CCORCH_ ASIG_ expresion PTOCOMA_{
                                         SIMB simb = obtTdS($1);
                                         if(simb.t == T_ERROR)
                                             yyerror("Objeto no declarado");
-                                        else if (! ((simb.t == $3.t == T_ENTERO) ||(simb.t == $3.t == T_LOGICO)))
+                                        else if (! (((simb.t == $3.t) && ($3.t == T_ENTERO))|| ((simb.t == $3.t) && ($3.t == T_LOGICO))))
                                             yyerror("Error de tipos en instruccion de asignacion");
                                     }
                                 ;
