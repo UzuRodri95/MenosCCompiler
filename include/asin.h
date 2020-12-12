@@ -54,49 +54,49 @@ extern int yydebug;
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
-    INT_ = 258,                    /* INT_  */
-    ID_ = 259,                     /* ID_  */
-    CTE_ = 260,                    /* CTE_  */
-    BOOL_ = 261,                   /* BOOL_  */
-    WHILE_ = 262,                  /* WHILE_  */
-    FOR_ = 263,                    /* FOR_  */
-    IF_ = 264,                     /* IF_  */
-    ELSE_ = 265,                   /* ELSE_  */
-    TRUE_ = 266,                   /* TRUE_  */
-    FALSE_ = 267,                  /* FALSE_  */
-    PRINT_ = 268,                  /* PRINT_  */
-    READ_ = 269,                   /* READ_  */
-    RETURN_ = 270,                 /* RETURN_  */
-    ALLAVE_ = 271,                 /* ALLAVE_  */
-    CLLAVE_ = 272,                 /* CLLAVE_  */
-    ACORCH_ = 273,                 /* ACORCH_  */
-    CCORCH_ = 274,                 /* CCORCH_  */
-    APAREN_ = 275,                 /* APAREN_  */
-    CPAREN_ = 276,                 /* CPAREN_  */
-    PTOCOMA_ = 277,                /* PTOCOMA_  */
-    PTO_ = 278,                    /* PTO_  */
-    CMA_ = 279,                    /* CMA_  */
-    MAS_ = 280,                    /* MAS_  */
-    MENOS_ = 281,                  /* MENOS_  */
-    POR_ = 282,                    /* POR_  */
-    DIV_ = 283,                    /* DIV_  */
-    AND_ = 284,                    /* AND_  */
-    OR_ = 285,                     /* OR_  */
-    SUMASIG_ = 286,                /* SUMASIG_  */
-    RESASIG_ = 287,                /* RESASIG_  */
-    MULASIG_ = 288,                /* MULASIG_  */
-    DIVASIG_ = 289,                /* DIVASIG_  */
-    IGU_ = 290,                    /* IGU_  */
-    NOIGU_ = 291,                  /* NOIGU_  */
-    MAYIGU_ = 292,                 /* MAYIGU_  */
-    MENIGU_ = 293,                 /* MENIGU_  */
-    INC_ = 294,                    /* INC_  */
-    DEC_ = 295,                    /* DEC_  */
-    MAY_ = 296,                    /* MAY_  */
-    MEN_ = 297,                    /* MEN_  */
-    ASIG_ = 298,                   /* ASIG_  */
-    NOT_ = 299,                    /* NOT_  */
-    MOD_ = 300                     /* MOD_  */
+    WHILE_ = 258,                  /* WHILE_  */
+    FOR_ = 259,                    /* FOR_  */
+    IF_ = 260,                     /* IF_  */
+    ELSE_ = 261,                   /* ELSE_  */
+    TRUE_ = 262,                   /* TRUE_  */
+    FALSE_ = 263,                  /* FALSE_  */
+    PRINT_ = 264,                  /* PRINT_  */
+    READ_ = 265,                   /* READ_  */
+    RETURN_ = 266,                 /* RETURN_  */
+    ALLAVE_ = 267,                 /* ALLAVE_  */
+    CLLAVE_ = 268,                 /* CLLAVE_  */
+    ACORCH_ = 269,                 /* ACORCH_  */
+    CCORCH_ = 270,                 /* CCORCH_  */
+    APAREN_ = 271,                 /* APAREN_  */
+    CPAREN_ = 272,                 /* CPAREN_  */
+    PTOCOMA_ = 273,                /* PTOCOMA_  */
+    PTO_ = 274,                    /* PTO_  */
+    CMA_ = 275,                    /* CMA_  */
+    MAS_ = 276,                    /* MAS_  */
+    MENOS_ = 277,                  /* MENOS_  */
+    POR_ = 278,                    /* POR_  */
+    DIV_ = 279,                    /* DIV_  */
+    AND_ = 280,                    /* AND_  */
+    OR_ = 281,                     /* OR_  */
+    SUMASIG_ = 282,                /* SUMASIG_  */
+    RESASIG_ = 283,                /* RESASIG_  */
+    MULASIG_ = 284,                /* MULASIG_  */
+    DIVASIG_ = 285,                /* DIVASIG_  */
+    IGU_ = 286,                    /* IGU_  */
+    NOIGU_ = 287,                  /* NOIGU_  */
+    MAYIGU_ = 288,                 /* MAYIGU_  */
+    MENIGU_ = 289,                 /* MENIGU_  */
+    INC_ = 290,                    /* INC_  */
+    DEC_ = 291,                    /* DEC_  */
+    MAY_ = 292,                    /* MAY_  */
+    MEN_ = 293,                    /* MEN_  */
+    ASIG_ = 294,                   /* ASIG_  */
+    NOT_ = 295,                    /* NOT_  */
+    MOD_ = 296,                    /* MOD_  */
+    INT_ = 297,                    /* INT_  */
+    BOOL_ = 298,                   /* BOOL_  */
+    CTE_ = 299,                    /* CTE_  */
+    ID_ = 300                      /* ID_  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -105,14 +105,15 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 20 "src/asin.y"
+#line 21 "src/asin.y"
 
     char *ident; //NOMBRE DEL IDENTIFICADOR
     int cent;    //VALOR DE LA CTE NUMERICA ENTERA
-    EXP exp;     //TIPO PARA LAS EXPRESIONES
-    
+    EXP exp;     //PARA LAS EXPRESIONES
+    STR str;     //PARA LOS ELEMENTOS CON TALLA
+    MAT mat;     //PARA CONSTANTE
 
-#line 116 "asin.h"
+#line 117 "asin.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

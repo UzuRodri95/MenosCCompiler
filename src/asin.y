@@ -21,8 +21,9 @@ int Daux;
 %union{
     char *ident; //NOMBRE DEL IDENTIFICADOR
     int cent;    //VALOR DE LA CTE NUMERICA ENTERA
-    EXP exp;     //TIPO PARA LAS EXPRESIONES
-    STR str;     //TIPO PARA LOS ELEMENTOS CON TALLA
+    EXP exp;     //PARA LAS EXPRESIONES
+    STR str;     //PARA LOS ELEMENTOS CON TALLA
+    MAT mat;     //PARA CONSTANTE
 }
 
 %token WHILE_ FOR_ IF_ ELSE_ TRUE_ FALSE_ PRINT_ READ_ RETURN_ 
@@ -30,19 +31,21 @@ int Daux;
 %token MAS_ MENOS_ POR_ DIV_
 %token AND_ OR_ SUMASIG_ RESASIG_ MULASIG_ DIVASIG_ IGU_ NOIGU_ MAYIGU_ MENIGU_ INC_ DEC_  MAY_ MEN_ ASIG_ NOT_ MOD_
 
-%token <cent> INT_ CTE_ BOOL_ 
-%type <cent> parametrosFormales parametrosActuales listaParametrosActuales
+%token <cent> INT_ BOOL_ CTE_ TRUE_ FALSE_
+%type <cent> parametrosActuales
 %type <cent> operadorAditivo operadorIgualdad operadorIncremento
 %type <cent> operadorLogico operadorMultiplicativo operadorRelacional operadorUnario
 
-%type <ident> ID_
+%token <ident> ID_ 
 
-%type <exp> declaracionVariable
 %type <exp> programa listaDeclaraciones declaracion instruccion expresion
 %type <exp> expresionIgualdad expresionAditiva expresionRelacional expresionOpcional
-%type <exp> expresionMultiplicativa expresionUnaria expresionSufija constante
+%type <exp> expresionMultiplicativa expresionUnaria expresionSufija 
 
-%type <str> tipoSimple listaParametrosFormales parametrosFormales declaracionVariable
+%type <str> tipoSimple listaParametrosFormales parametrosFormales declaracionVariable listaParametrosActuales declaracionFuncion 
+%type <str> declaracionVariableLocal cabeceraFuncion 
+
+%type <mat> constante 
 %%
 
 programa                        :{
@@ -89,11 +92,11 @@ declaracionVariable             : tipoSimple ID_ PTOCOMA_{
                                             int refe = insTdA($1.t, numelem);
                                             if(instTdS($2,VARIABLE,T_ARRAY,niv,dvar,refe)){
                                                 $$.n = $2;
-                                                $$.t = $1;
+                                                $$.t = $1.t;
                                                 $$.talla = $$.talla + numelem * TALLA_TIPO_SIMPLE;
                                             }
                                             else{
-                                                yyerror("Identificador repetido")
+                                                yyerror("Identificador repetido");
                                             }
                                         }
                                         
@@ -116,7 +119,15 @@ declaracionFuncion              : cabeceraFuncion bloque {
                                 ;
 
 cabeceraFuncion                 : tipoSimple ID_ APAREN_ parametrosFormales CPAREN_{
-                                       insTdS($2)
+                                       if(insTdS($2,FUNCION,$1.t,niv,$4.talla,-1)){
+                                           $$.n = $2;
+                                           $$.t = $1.t;
+                                           $$.talla = $4.talla;
+                                       }
+                                       else{
+                                           $$.t = T_ERROR;
+                                           yyerror("Ya existe variable, se ha declarado previamente");
+                                       }
                                     }
                                 ;
 
@@ -153,7 +164,7 @@ bloque                          : {
                                 | ALLAVE_ declaracionVariableLocal listaInstrucciones RETURN_ expresion PTOCOMA_ CLLAVE_{
                                     niv--;
                                     descargaContexto(niv);
-                                    dvar = D.aux;
+                                    dvar = Daux;
                                 }
                                 ;
 
@@ -161,7 +172,7 @@ declaracionVariableLocal        : /* vacio */ {
 
                                 }
                                 | declaracionVariableLocal declaracionVariable{
-                                        if(insTdS($1,VARIABLE,$2.t,niv,dvar,-1)){
+                                        if(insTdS($1.n,VARIABLE,$2.t,niv,dvar,-1)){
                                           dvar += TALLA_TIPO_SIMPLE;
                                         }
                                     }
@@ -171,7 +182,7 @@ listaInstrucciones              : /* vacio */{
 
                                 }
                                 | listaInstrucciones instruccion{
-
+                                    /*  vacio   */
                                 }
                                 ;
 
@@ -215,10 +226,11 @@ instruccionEntradaSalida        : READ_ APAREN_ ID_ CPAREN_ PTOCOMA_{
                                     }
                                 }
                                 | PRINT_ APAREN_ expresion CPAREN_ PTOCOMA_{
-                                    if ($3.tipo != T_ERROR) { 
-                                        if ($3.tipo != T_ENTERO) {
+                                    if ($3.t != T_ERROR) { 
+                                        if ($3.t != T_ENTERO) {
                                             yyerror("expresion no valida para la instruccion salida : se esperaba expresion entera");
                                         } 
+                                    }
                                 }
                                 ;
 
@@ -251,7 +263,7 @@ expresionOpcional               : /* vacı́o */{
 
                                 }
                                 | expresion{
-                                    $$.t = $1.t
+                                    $$.t = $1.t;
                                 }
                                 | ID_ ASIG_ expresion{
                                     $$.t = T_ERROR;
@@ -265,7 +277,7 @@ expresionOpcional               : /* vacı́o */{
                                                 yyerror("identificador o expresion no valida para la expresion : se esperaba un identificador y una expresion del mismo tipo");
                                             } 
                                             else {
-                                                $$.t = sim.t;
+                                                $$.t = simb.t;
                                             }
                                         }
                                     } 
@@ -293,7 +305,7 @@ expresion                       : expresionIgualdad{
                                 ;
 
 expresionIgualdad               : expresionRelacional{
-                                    $$.t = $1.t
+                                    $$.t = $1.t;
                                 }
                                 | expresionIgualdad operadorIgualdad expresionRelacional{
                                     $$.t = T_ERROR;
@@ -363,13 +375,12 @@ expresionMultiplicativa         : expresionUnaria{
                                 ;
 
 expresionUnaria                 : expresionSufija{ 
-                                    $$.tipo = $1.tipo;
-                                    $$.pos = $1.pos;
+                                    $$.t = $1.t;
                                 }
                                 | operadorUnario expresionUnaria{   
-                                    $$.tipo = T_ERROR;
+                                    $$.t = T_ERROR;
                                     if ($2.t != T_ERROR) {
-                                        if ($1 == NOT) {
+                                        if ($1 == NOT_) {
                                             if ($2.t != T_LOGICO) {
                                                 yyerror("expresion unaria no valida para la expresion unaria : se espera una expresion unaria de tipo logica");
                                             } else { 
@@ -386,13 +397,13 @@ expresionUnaria                 : expresionSufija{
                                     }                                   
                                 } 
                                 | operadorIncremento ID_ {
-                                    $$.tipo = T_ERROR;
+                                    $$.t = T_ERROR;
                                     SIMB simb = obtTdS($2);
                                     if (simb.t == T_ERROR) {
                                         yyerror("identificador no declarado : declarelo antes de utilizarlo");
                                     }
                                     else{
-                                        $$.t = sim.t;
+                                        $$.t = simb.t;
                                     }                                                   
                                 } 
                                 ;
@@ -402,7 +413,7 @@ expresionSufija                 : APAREN_ expresion CPAREN_{
                                     }
                                 | ID_ operadorIncremento{
                                         $$.t = T_ERROR;
-                                        SIMB simb = obtTdS($1)
+                                        SIMB simb = obtTdS($1);
                                         if(simb.t == T_ERROR){
                                             yyerror("identificador no declarado.");
                                         }else if(simb.t != T_ENTERO){
@@ -413,7 +424,7 @@ expresionSufija                 : APAREN_ expresion CPAREN_{
                                     }
                                 | ID_ ACORCH_ expresion CCORCH_{
                                         $$.t = T_ERROR;
-                                        SIMB simb = obtTdS($1)
+                                        SIMB simb = obtTdS($1);
                                         if(simb.t == T_ERROR){
                                             yyerror("identificador no declarado.");
                                         }else if(simb.t != T_ERROR){
@@ -431,7 +442,7 @@ expresionSufija                 : APAREN_ expresion CPAREN_{
                                 | ID_ APAREN_ parametrosActuales CPAREN_{
                                         $$.t = T_ERROR;
                                         SIMB simb = obtTdS($1);
-                                        if(simb.t != T_FUNCION){
+                                        if(simb.t != T_ENTERO && simb.t != T_LOGICO){
                                             yyerror("inconsistencia de tipos : identificador y parametros actuales no son del mismo tipo");
                                         }else if(simb.t != $3){
                                             yyerror("identificador no valido : no corresponde con el tipo de parametros actuales");
@@ -458,7 +469,7 @@ parametrosActuales              : /* vacı́o */{
                                     $$ = T_VACIO;
                                 }
                                 | listaParametrosActuales{
-                                    $$ = $1;
+                                    $$ = $1.t;
                                 }
                                 ;
 
@@ -471,9 +482,18 @@ listaParametrosActuales         : expresion{
                                 ;
 
 
-constante                       : CTE_    {$$ = $1}
-                                | TRUE_   {$$ = T_LOGICO}
-                                | FALSE_  {$$ = T_LOGICO}
+constante                       : CTE_    {
+                                    $$.t = T_ENTERO;
+                                    $$.v = $1;
+                                }
+                                | TRUE_   {
+                                    $$.t = T_LOGICO;
+                                    $$.v = $1;
+                                }
+                                | FALSE_  {
+                                    $$.t = T_LOGICO;
+                                    $$.v = $1;
+                                }
                                 ;
 
 operadorLogico                  :AND_

@@ -25,6 +25,10 @@ typedef struct str {                        /* Estructura para las estructuras c
     int t;      //TIPO
     int talla;  //TALLA
 }   STR;
+typedef struct mat{                        /* Estructura para las estructuras que utilicen valores  */
+    int v;      //VALOR
+    int t;      //TIPO
+}   MAT;
 
 /********************************* Funciones y variables externas auxiliares */
 extern int verbosidad;                   /* Flag si se desea una traza       */
