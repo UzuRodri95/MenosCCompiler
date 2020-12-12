@@ -1,4 +1,4 @@
-/* A Bison parser, made by GNU Bison 3.7.2.  */
+/* A Bison parser, made by GNU Bison 3.5.1.  */
 
 /* Bison interface for Yacc-like parsers in C
 
@@ -31,9 +31,8 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-/* DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
-   especially those whose name start with YY_ or yy_.  They are
-   private implementation details that can be changed or removed.  */
+/* Undocumented macros, especially those whose name start with YY_,
+   are private implementation details.  Do not rely on them.  */
 
 #ifndef YY_YY_ASIN_H_INCLUDED
 # define YY_YY_ASIN_H_INCLUDED
@@ -45,60 +44,55 @@
 extern int yydebug;
 #endif
 
-/* Token kinds.  */
+/* Token type.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
   enum yytokentype
   {
-    YYEMPTY = -2,
-    YYEOF = 0,                     /* "end of file"  */
-    YYerror = 256,                 /* error  */
-    YYUNDEF = 257,                 /* "invalid token"  */
-    WHILE_ = 258,                  /* WHILE_  */
-    FOR_ = 259,                    /* FOR_  */
-    IF_ = 260,                     /* IF_  */
-    ELSE_ = 261,                   /* ELSE_  */
-    TRUE_ = 262,                   /* TRUE_  */
-    FALSE_ = 263,                  /* FALSE_  */
-    PRINT_ = 264,                  /* PRINT_  */
-    READ_ = 265,                   /* READ_  */
-    RETURN_ = 266,                 /* RETURN_  */
-    ALLAVE_ = 267,                 /* ALLAVE_  */
-    CLLAVE_ = 268,                 /* CLLAVE_  */
-    ACORCH_ = 269,                 /* ACORCH_  */
-    CCORCH_ = 270,                 /* CCORCH_  */
-    APAREN_ = 271,                 /* APAREN_  */
-    CPAREN_ = 272,                 /* CPAREN_  */
-    PTOCOMA_ = 273,                /* PTOCOMA_  */
-    PTO_ = 274,                    /* PTO_  */
-    CMA_ = 275,                    /* CMA_  */
-    MAS_ = 276,                    /* MAS_  */
-    MENOS_ = 277,                  /* MENOS_  */
-    POR_ = 278,                    /* POR_  */
-    DIV_ = 279,                    /* DIV_  */
-    AND_ = 280,                    /* AND_  */
-    OR_ = 281,                     /* OR_  */
-    SUMASIG_ = 282,                /* SUMASIG_  */
-    RESASIG_ = 283,                /* RESASIG_  */
-    MULASIG_ = 284,                /* MULASIG_  */
-    DIVASIG_ = 285,                /* DIVASIG_  */
-    IGU_ = 286,                    /* IGU_  */
-    NOIGU_ = 287,                  /* NOIGU_  */
-    MAYIGU_ = 288,                 /* MAYIGU_  */
-    MENIGU_ = 289,                 /* MENIGU_  */
-    INC_ = 290,                    /* INC_  */
-    DEC_ = 291,                    /* DEC_  */
-    MAY_ = 292,                    /* MAY_  */
-    MEN_ = 293,                    /* MEN_  */
-    ASIG_ = 294,                   /* ASIG_  */
-    NOT_ = 295,                    /* NOT_  */
-    MOD_ = 296,                    /* MOD_  */
-    INT_ = 297,                    /* INT_  */
-    BOOL_ = 298,                   /* BOOL_  */
-    CTE_ = 299,                    /* CTE_  */
-    ID_ = 300                      /* ID_  */
+    WHILE_ = 258,
+    FOR_ = 259,
+    IF_ = 260,
+    ELSE_ = 261,
+    TRUE_ = 262,
+    FALSE_ = 263,
+    PRINT_ = 264,
+    READ_ = 265,
+    RETURN_ = 266,
+    ALLAVE_ = 267,
+    CLLAVE_ = 268,
+    ACORCH_ = 269,
+    CCORCH_ = 270,
+    APAREN_ = 271,
+    CPAREN_ = 272,
+    PTOCOMA_ = 273,
+    PTO_ = 274,
+    CMA_ = 275,
+    MAS_ = 276,
+    MENOS_ = 277,
+    POR_ = 278,
+    DIV_ = 279,
+    AND_ = 280,
+    OR_ = 281,
+    SUMASIG_ = 282,
+    RESASIG_ = 283,
+    MULASIG_ = 284,
+    DIVASIG_ = 285,
+    IGU_ = 286,
+    NOIGU_ = 287,
+    MAYIGU_ = 288,
+    MENIGU_ = 289,
+    INC_ = 290,
+    DEC_ = 291,
+    MAY_ = 292,
+    MEN_ = 293,
+    ASIG_ = 294,
+    NOT_ = 295,
+    MOD_ = 296,
+    INT_ = 297,
+    BOOL_ = 298,
+    CTE_ = 299,
+    ID_ = 300
   };
-  typedef enum yytokentype yytoken_kind_t;
 #endif
 
 /* Value type.  */
@@ -113,7 +107,7 @@ union YYSTYPE
     STR str;     //PARA LOS ELEMENTOS CON TALLA
     MAT mat;     //PARA CONSTANTE
 
-#line 117 "asin.h"
+#line 111 "asin.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

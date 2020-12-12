@@ -90,7 +90,7 @@ declaracionVariable             : tipoSimple ID_ PTOCOMA_{
                                         }
                                         else{
                                             int refe = insTdA($1.t, numelem);
-                                            if(instTdS($2,VARIABLE,T_ARRAY,niv,dvar,refe)){
+                                            if(insTdS($2,VARIABLE,T_ARRAY,niv,dvar,refe)){
                                                 $$.n = $2;
                                                 $$.t = $1.t;
                                                 $$.talla = $$.talla + numelem * TALLA_TIPO_SIMPLE;
@@ -208,14 +208,14 @@ instruccionAsignacion           : ID_ ASIG_ expresion PTOCOMA_{
                                         if(simb.t == T_ERROR)
                                             yyerror("Objeto no declarado");
                                         else if (! ((simb.t == $3.t == T_ENTERO) || (simb.t == $3.t == T_LOGICO)))
-                                            yerror("Error de tipos en instruccion de asignacion");
+                                            yyerror("Error de tipos en instruccion de asignacion");
                                     }
                                 | ID_ ACORCH_ expresion CCORCH_ ASIG_ expresion PTOCOMA_{
                                         SIMB simb = obtTdS($1);
                                         if(simb.t == T_ERROR)
                                             yyerror("Objeto no declarado");
                                         else if (! ((simb.t == $3.t == T_ENTERO) ||(simb.t == $3.t == T_LOGICO)))
-                                            yerror("Error de tipos en instruccion de asignacion");
+                                            yyerror("Error de tipos en instruccion de asignacion");
                                     }
                                 ;
 
