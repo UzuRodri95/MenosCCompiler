@@ -105,13 +105,14 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 16 "src/asin.y"
+#line 20 "src/asin.y"
 
     char *ident; //NOMBRE DEL IDENTIFICADOR
     int cent;    //VALOR DE LA CTE NUMERICA ENTERA
     EXP exp;     //TIPO PARA LAS EXPRESIONES
+    
 
-#line 115 "asin.h"
+#line 116 "asin.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

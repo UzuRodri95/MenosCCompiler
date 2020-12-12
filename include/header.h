@@ -16,10 +16,15 @@ extern FILE *yyin;
 extern int   yylineno;
 
 typedef struct exp {                        /* Estructura para las expresiones  */
-    int tipo;        
-    int pos;         
+    int t;     //TIPO
+    int p;     //POSICION   
 }   EXP;
 
+typedef struct str {                        /* Estructura para las estructuras con talla  */
+    char* n;    //NOMBRE
+    int t;      //TIPO
+    int talla;  //TALLA
+}   STR;
 
 /********************************* Funciones y variables externas auxiliares */
 extern int verbosidad;                   /* Flag si se desea una traza       */

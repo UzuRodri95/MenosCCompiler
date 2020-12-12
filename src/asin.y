@@ -11,30 +11,38 @@
 #include <stdio.h>
 #include <string.h>
 #include "header.h"
+#include "libtds.h"
+
+int dvar;
+int niv;
+int Daux;
 %}
 
 %union{
     char *ident; //NOMBRE DEL IDENTIFICADOR
     int cent;    //VALOR DE LA CTE NUMERICA ENTERA
     EXP exp;     //TIPO PARA LAS EXPRESIONES
+    STR str;     //TIPO PARA LOS ELEMENTOS CON TALLA
 }
 
-%token <cent> INT_ ID_ CTE_ BOOL_ 
-%type <cent> parametrosFormales parametrosActuales listaParametrosActuales
-
-%token WHILE_ FOR_ IF_ ELSE_ TRUE_ FALSE_ PRINT_ READ_ RETURN_
+%token WHILE_ FOR_ IF_ ELSE_ TRUE_ FALSE_ PRINT_ READ_ RETURN_ 
 %token ALLAVE_  CLLAVE_ ACORCH_  CCORCH_ APAREN_ CPAREN_ PTOCOMA_ PTO_ CMA_
 %token MAS_ MENOS_ POR_ DIV_
 %token AND_ OR_ SUMASIG_ RESASIG_ MULASIG_ DIVASIG_ IGU_ NOIGU_ MAYIGU_ MENIGU_ INC_ DEC_  MAY_ MEN_ ASIG_ NOT_ MOD_
 
-%type<ident> declaracionVariable listaParametrosFormales
+%token <cent> INT_ CTE_ BOOL_ 
+%type <cent> parametrosFormales parametrosActuales listaParametrosActuales
+%type <cent> operadorAditivo operadorIgualdad operadorIncremento
+%type <cent> operadorLogico operadorMultiplicativo operadorRelacional operadorUnario
 
+%type <ident> ID_
+
+%type <exp> declaracionVariable
 %type <exp> programa listaDeclaraciones declaracion instruccion expresion
 %type <exp> expresionIgualdad expresionAditiva expresionRelacional expresionOpcional
 %type <exp> expresionMultiplicativa expresionUnaria expresionSufija constante
 
-%type <cent> tipoSimple operadorAditivo operadorIgualdad operadorIncremento
-%type <cent> operadorLogico operadorMultiplicativo operadorRelacional operadorUnario
+%type <str> tipoSimple listaParametrosFormales parametrosFormales declaracionVariable
 %%
 
 programa                        :{
@@ -55,39 +63,51 @@ listaDeclaraciones              : declaracion {
                                 ;
 
 declaracion                     : declaracionVariable{
-                                        if(!insTdS($1.n,1,$1.t,n,desp,-1)){
-                                            yyerror("identificador ya existente : utilice otro nombre");
-                                        } else{
-                                            dvar += $1.talla;
-                                        }
+                                        dvar = dvar + $1.talla;
                                     }
-                                | declaracionFuncion
+                                | declaracionFuncion{
+                                        dvar = dvar + $1.talla;
+                                    }
                                 ;
 
 declaracionVariable             : tipoSimple ID_ PTOCOMA_{
-                                        if(insTdS($2,VARIABLE,$1,niv,vdar,-1)){
-                                            dvar += TALLA_TIPO_SIMPLE;
+                                        if(insTdS($2,VARIABLE,$1.t,niv,dvar,-1)){
+                                            $$.n = $2;
+                                            $$.talla = $$.talla + TALLA_TIPO_SIMPLE;
                                         }else{
+                                            $$.t = T_ERROR;
                                             yyerror("La variable ya ha sido declarada");
                                         }
                                     }
                                 | tipoSimple ID_ ACORCH_ CTE_ CCORCH_ PTOCOMA_{
                                         int numelem = $4;
-                                        if($4 <= 0){
+                                        if(numelem <= 0){
                                             yyerror("Talla no apropiada para array");
                                             numelem = 0;
                                         }
-                                        int refe = insTdA($1, numelem);
-                                        if(instTdS($2,VARIABLE,T_ARRAY,niv,dvar,refe)){
-                                            dvar += numelem * TALLA_TIPO_SIMPLE;
-                                        }else{
-                                            yyerror("Identificador repetido")
+                                        else{
+                                            int refe = insTdA($1.t, numelem);
+                                            if(instTdS($2,VARIABLE,T_ARRAY,niv,dvar,refe)){
+                                                $$.n = $2;
+                                                $$.t = $1;
+                                                $$.talla = $$.talla + numelem * TALLA_TIPO_SIMPLE;
+                                            }
+                                            else{
+                                                yyerror("Identificador repetido")
+                                            }
                                         }
+                                        
                                     }
                                 ;
 
-tipoSimple                      : INT_ {$$.t = $1.t;}
-                                | BOOL_{$$.t = $1.t;}
+tipoSimple                      : INT_ {
+                                    $$.t = T_ENTERO;
+                                    $$.talla = TALLA_TIPO_SIMPLE;
+                                    }
+                                | BOOL_{
+                                    $$.t = T_LOGICO;
+                                    $$.talla = TALLA_TIPO_SIMPLE;
+                                    }
                                 ;
 
 declaracionFuncion              : cabeceraFuncion bloque {
@@ -102,249 +122,279 @@ cabeceraFuncion                 : tipoSimple ID_ APAREN_ parametrosFormales CPAR
 
 parametrosFormales              : /* vacio */{
                                         $$.t = T_VACIO;
-                                        dvar += 0;
+                                        $$.talla = 0;
                                     }
                                 | listaParametrosFormales{
                                         $$.t = $1.t;
-                                        dvar += TALLA_SEGENLACES;
+                                        $$.talla =  $$.talla - TALLA_SEGENLACES;
                                     }
                                 ;
 
-listaParametrosFormales         : tipoSimple ID_
-                                    {
-                                        $$.n = $2.n;
-                                        $$.t = $2.t;
+listaParametrosFormales         : tipoSimple ID_{
+                                    $$.t = $1.t;
+                                    $$.talla = TALLA_SEGENLACES + $1.talla;
+                                    insTdS($2,PARAMETRO,$1.t,niv,-$$.talla,-1);
+                                }
+                                | tipoSimple ID_ CMA_ listaParametrosFormales{
+                                    if($1.t == $4.t && $1.t != T_ERROR){
+                                        $$.t == $1.t;
+                                        $$.talla = $4.talla + $1.talla;
+                                        insTdS($2,PARAMETRO,$1.t,niv,-$$.talla,-1);
                                     }
-                                | tipoSimple ID_ CMA_ listaParametrosFormales
-                                    {
-                                        if( obtTdS($2.n, $2.t)  && ($2.t = tvector($2.nel )) && ($4.t = tentero)){
-                                            $$.t = T_ERROR;
-                                            yerror("Error de tipos en la 'instruccion de lista de parametros'");
-                                        }else{
-                                            $$.t = $2.tel;
-                                        }
-                                    }
+                                }
                                 ;
-//  listaParametrosFormales         : tipoSimple ID_
-//                             {
-//                               $$.t = T_ERROR;
-//                               SIMB simb = obtTdS($1);
-//                               if(simb.t == T_ERROR){
-//                                 yyerror("identificador no declarado.");
-//                               }else{
-//                                 if(simb.t == INT_ ||simb.t == BOOL_){
-//                                 $$.t = simb.t;
-//                               }else{yyerror("Error de tipo en el identificador.");}
-//                               }
-//                             }
-//                             | tipoSimple ID_ CMA_ listaParametrosFormales
-//                             {
-//                               $$.t = T_ERROR;
-//                               SIMB simb = obtTdS($1);
-//                               if(simb.t == T_ERROR){
-//                                 yyerror("identificador no declarado.");
-//                               }else{
-//                                 if(simb.t == INT_ ||simb.t == BOOL_){
-//                                       $$.t = simb.t;
-//                               }else{yyerror("Error de tipo en el identificador.");}
-//                               }
-//                             };
 
 bloque                          : {
                                     niv++;
                                     cargaContexto(niv);
-                                    //D.aux = dvar; dvar = 0;
-                                    }
+                                    Daux = dvar; 
+                                    dvar = 0;
+                                }
                                 | ALLAVE_ declaracionVariableLocal listaInstrucciones RETURN_ expresion PTOCOMA_ CLLAVE_{
                                     niv--;
                                     descargaContexto(niv);
-                                    //dvar = D.aux;
+                                    dvar = D.aux;
                                 }
                                 ;
 
-declaracionVariableLocal        : /* vacio */ { }
+declaracionVariableLocal        : /* vacio */ {
+
+                                }
                                 | declaracionVariableLocal declaracionVariable{
-                                        if(insTdS($2,VARIABLE,$2,n,dvar,-1)){
+                                        if(insTdS($1,VARIABLE,$2.t,niv,dvar,-1)){
                                           dvar += TALLA_TIPO_SIMPLE;
                                         }
                                     }
                                 ;
 
-listaInstrucciones              : /* vacio */
-                                | listaInstrucciones instruccion
+listaInstrucciones              : /* vacio */{
+
+                                }
+                                | listaInstrucciones instruccion{
+
+                                }
                                 ;
 
-instruccion                     : ALLAVE_ listaInstrucciones CLLAVE_
-                                | instruccionAsignacion
-                                | instruccionSeleccion
-                                | instruccionEntradaSalida
-                                | instruccionIteracion
+instruccion                     : ALLAVE_ listaInstrucciones CLLAVE_{
+
+                                }
+                                | instruccionAsignacion{
+
+                                }
+                                | instruccionSeleccion{
+
+                                }
+                                | instruccionEntradaSalida{
+
+                                }
+                                | instruccionIteracion{
+
+                                }
                                 ;
 
-instruccionAsignacion           : ID_ ASIG_ expresion PTOCOMA_
-                                    {
+instruccionAsignacion           : ID_ ASIG_ expresion PTOCOMA_{
                                         SIMB simb = obtTdS($1);
                                         if(simb.t == T_ERROR)
                                             yyerror("Objeto no declarado");
-                                        else if (! ((simb.t == $3.t == T_ENTERO) ||
-                                                (simb.t == $3.t == T_LOGICO)))
-                                            yerror("Error de tipos en la 'instruccion de asignacion'");
+                                        else if (! ((simb.t == $3.t == T_ENTERO) || (simb.t == $3.t == T_LOGICO)))
+                                            yerror("Error de tipos en instruccion de asignacion");
                                     }
-                                | ID_ ACORCH_ expresion CCORCH_ ASIG_ expresion PTOCOMA_
-                                    {
+                                | ID_ ACORCH_ expresion CCORCH_ ASIG_ expresion PTOCOMA_{
                                         SIMB simb = obtTdS($1);
                                         if(simb.t == T_ERROR)
                                             yyerror("Objeto no declarado");
-                                        else if (! ((simb.t == $3.t == T_ENTERO) ||
-                                                (simb.t == $3.t == T_LOGICO)))
-                                            yerror("Error de tipos en la 'instruccion de asignacion'");
+                                        else if (! ((simb.t == $3.t == T_ENTERO) ||(simb.t == $3.t == T_LOGICO)))
+                                            yerror("Error de tipos en instruccion de asignacion");
                                     }
                                 ;
 
 instruccionEntradaSalida        : READ_ APAREN_ ID_ CPAREN_ PTOCOMA_{
-
+                                    SIMB sim = obtTdS($3);
+                                    if (sim.t != T_ENTERO) {
+                                        yyerror("identificador no valido para la instruccion entrada : se esperaba identificador entero");
                                     }
+                                }
                                 | PRINT_ APAREN_ expresion CPAREN_ PTOCOMA_{
+                                    if ($3.tipo != T_ERROR) { 
+                                        if ($3.tipo != T_ENTERO) {
+                                            yyerror("expresion no valida para la instruccion salida : se esperaba expresion entera");
+                                        } 
+                                }
+                                ;
 
+instruccionSeleccion            : IF_ APAREN_ expresion CPAREN_ instruccion ELSE_ instruccion{
+                                    if($3.t != T_ERROR){
+                                        if($3.t != T_LOGICO){
+                                            yyerror("expresion no valida para la instruccion seleccion : se esperaba una expresion logica");
+                                        }
                                     }
+                                    
+                                }
                                 ;
 
-instruccionSeleccion            : IF_ APAREN_ expresion CPAREN_ instruccion ELSE_ instruccion
-                                ;
-
-// instruccionIteracion            : FOR_ APAREN_ expresionOpcional PTOCOMA_ expresion PTOCOMA_ expresionOpcional CPAREN_ instruccion
-//                                     {
-//                                         int numelem = $7;
-//                                         if($7 <= 0){
-//                                             yyerror("Talla no apropiada para array");
-//                                             numelem = 0;
-//                                         }
-//                                         if($3.t != T_ENTERO || $5.t != T_ENTERO || $7.t != T_ENTERO){
-//                                             yyerror("El iterador tiene que ser un entero");
-//                                         }
-//                                         $$ = $7 + 1;
-//                                     }
-//                                 ;
-
-instruccionIteracion            : FOR_ APAREN_ expresionOpcional PTOCOMA_ expresion PTOCOMA_ expresionOpcional CPAREN_ instruccion
-                                    {
+instruccionIteracion            : FOR_ APAREN_ expresionOpcional PTOCOMA_ expresion PTOCOMA_ expresionOpcional CPAREN_ instruccion{
                                         if($5.t == T_LOGICO){
                                             if(($3.t != T_ERROR || $3.t == T_VACIO ) && ($7.t != T_ERROR || $7.t == T_VACIO )){
 
-                                            }else{
-                                            yyerror("Error>Instrucción iteracción FOR : instrucción mal formada");
                                             }
-                                        }else{
-                                            yyerror("Error>Instrucción iteracción FOR : error en el operador lógico");
+                                            else{
+                                                yyerror("Instrucción mal formada");
+                                            }
+                                        }
+                                        else{
+                                            yyerror("Error en el operador lógico");
                                         }
                                     }
-                      ;
+                                    ;     
 
-expresionOpcional               : /* vacı́o */
-                                | expresion
-                                | ID_ ASIG_ expresion
-                                ;
+expresionOpcional               : /* vacı́o */{
 
-expresion                       : expresionIgualdad
-                                | expresion operadorLogico expresionIgualdad
-                                ;
-
-expresionIgualdad               : expresionRelacional
-                                | expresionIgualdad operadorIgualdad expresionRelacional
-                                ;
-
-expresionRelacional             : expresionAditiva { $$ = $1; }
-                          | expresionRelacional operadorRelacional expresionAditiva
-                          {
-                             $$.tipo = T_ERROR;
-                             if($1.t != T_ERROR && $3.t != T_ERROR){
-                              if ($1.t != $3.t) {
-                                  yyerror("la operación se está realizando con dos tipos de datos distintos");
-                              }else
-                              {
-                                if ($2.t != T_LOGICO) {
-                                     yyerror("expresion no valida : se espera una operación relacional");
-                                }else{
-
-                                    if ($1.t == T_ENTERO && $3.t == T_ENTERO ) {
-                                        $$.t = T_ENTERO;
-
-                                        if ($2 == MAY_ ){
-                                          /* $$.v = 0;
-                                          if ($1 > $2 )
-                                           $$.v = 1;*/
-                                        }else if ($2 == MEN_ ){
-                                          /*   $$.v = 0;
-                                          if ($1 < $2 )
-                                           $$.v = 1;*/
-                                        }else if ($2 == MAYIGU_ ){
-                                          /*   $$.v = 0;
-                                          if ($1 >= $2 )
-                                           $$.v = 1;*/
-                                        }else if ($2 == MENIGU_ ){
-                                          /*   $$.v = 0;
-                                          if ($1 <= $2 )
-                                           $$.v = 1; */
-                                        }else{
-                                          $$.t = T_ERROR;
-                                          yyerror("Error : El operador no se corrsponde con el operadorRelacional");
+                                }
+                                | expresion{
+                                    $$.t = $1.t
+                                }
+                                | ID_ ASIG_ expresion{
+                                    $$.t = T_ERROR;
+                                    SIMB simb = obtTdS($1);
+                                    if (simb.t == T_ERROR) {
+                                        yyerror("identificador no declarado : es necesario declararlo antes de utilizarlo");
+                                    } 
+                                    else{
+                                        if ($3.t != T_ERROR) {
+                                            if((simb.t != $3.t) || (simb.t == $3.t && simb.t != T_ENTERO && simb.t != T_LOGICO)) {
+                                                yyerror("identificador o expresion no valida para la expresion : se esperaba un identificador y una expresion del mismo tipo");
+                                            } 
+                                            else {
+                                                $$.t = sim.t;
+                                            }
                                         }
+                                    } 
+                                }
+                                ;
 
+expresion                       : expresionIgualdad{
+                                    $$.t = $1.t;
+                                }
+                                | expresion operadorLogico expresionIgualdad{
+                                    $$.t = T_ERROR;
+                                    if ($1.t != T_ERROR && $3.t != T_ERROR) {
+                                        if ($1.t != T_LOGICO && $1.t != T_ENTERO ) {
+                                            yyerror("expresion igualdad no valida para la expresion igualdad : se esperaba una expresion igualdad de tipo logica o entera");
+                                        } else if ($3.t != T_LOGICO && $3.t != T_ENTERO) {
+                                            yyerror("expresion relacional no valida para la expresion igualdad : se esperaba una expresion relacional de tipo logica o entera");
+                                        } if ($1.t != $3.t) {
+                                            yyerror("expresion igualdad o expresion relacional no valida para la expresion igualdad : se esperaba una expresion igualdad y una expresion relacional del mismo tipo");
+                                        }
+                                    } 
+                                    else { 
+                                        $$.t = T_LOGICO;
+                                    }   
+                                }
+                                ;
 
-                                    }else{
-                                         yyerror("expresion no valida : se espera una operación relacional");
+expresionIgualdad               : expresionRelacional{
+                                    $$.t = $1.t
+                                }
+                                | expresionIgualdad operadorIgualdad expresionRelacional{
+                                    $$.t = T_ERROR;
+                                    if ($1.t != T_ERROR && $3.t != T_ERROR) {
+                                        if ($1.t != T_LOGICO && $1.t != T_ENTERO ) {
+                                            yyerror("expresion igualdad no valida para la expresion igualdad : se esperaba una expresion igualdad de tipo logica o entera");
+                                        } else if ($3.t != T_LOGICO && $3.t != T_ENTERO) {
+                                            yyerror("expresion relacional no valida para la expresion igualdad : se esperaba una expresion relacional de tipo logica o entera");
+                                        } if ($1.t != $3.t) {
+                                            yyerror("expresion igualdad o expresion relacional no valida para la expresion igualdad : se esperaba una expresion igualdad y una expresion relacional del mismo tipo");
+                                        }
+                                    } 
+                                    else { 
+                                        $$.t = T_LOGICO;
+                                    }                                     
+                                }
+                                ;
+
+expresionRelacional             : expresionAditiva {
+                                    $$.t = $1.t; 
+                                }
+                                | expresionRelacional operadorRelacional expresionAditiva{
+                                    $$.t = T_ERROR;
+                                    if ($1.t != T_ERROR && $3.t != T_ERROR) {
+                                        if ($1.t != T_LOGICO && $1.t != T_ENTERO ) {
+                                        yyerror("expresion relacional no valida para la expresion relacional : se esperaba una expresion relacional de tipo logica o entera");
+                                        } else if ($3.t != T_LOGICO && $3.t != T_ENTERO) {
+                                        yyerror("expresion aditiva no valida para la expresion relacional : se espera una expresion aditiva de tipo logica o entera");
+                                        } else if ($1.t != $3.t) {
+                                        yyerror("expresion relacional o expresion aditiva no valida para la expresion relacional : se espera una expresion relacional y una expresion aditiva del mismo tipo");
+                                    } 
+                                    else { 
+                                        $$.t = T_LOGICO;
+                                    }                                      
+                                    }
+                                };
+
+expresionAditiva                : expresionMultiplicativa   { 
+                                    $$.t = $1.t; 
+                                }
+                                | expresionAditiva operadorAditivo expresionMultiplicativa{
+                                    $$.t = T_ERROR;
+                                    if ($1.t == $3.t && $3.t == T_ENTERO){
+                                        $$.t = T_ENTERO;
+                                    } 
+                                    else{
+                                        yyerror("Error de tipos en la expresion aditiva");
                                     }
                                 }
-                              }
-                            }else {yyerror("Uno o más opeandos contiene un error de tipo");}
-  };
+                                ;
 
-expresionAditiva                : expresionMultiplicativa   { $$ = $1; }
-                                | expresionAditiva operadorAditivo expresionMultiplicativa
-                                    {
-                                        $$.tipo = T ERROR;
-                                        if ($1.tipo == $3.tipo == T_ENTERO) $$.tipo = T_ENTERO;
-                                        else yyerror("Error de tipos en la ‘expresi´on aditiva’");
-                                        $$.d = creaVarTemp();
-                                        emite($2, crArgPos(niv, $1.d), crArgPos(niv, $3.d), crArgPos(niv, $$.d));
+expresionMultiplicativa         : expresionUnaria{
+                                    $$.t = $1.t;
+                                }
+                                | expresionMultiplicativa operadorMultiplicativo expresionUnaria{
+                                    $$.t = T_ERROR;
+                                    if ($1.t != T_ERROR && $3.t != T_ERROR) {
+                                        if ($1.t != T_ENTERO) {
+                                            yyerror("expresion multiplicativa no valida para la expresion multiplicativa : se espera una expresion multiplicativa de tipo entera");
+                                        } else if ($3.t != T_ENTERO) {
+                                            yyerror("expresion unaria no valida para la expresion multiplicativa : se espera una expresion unaria de tipo entera");
+                                        } else { 
+                                            $$.t = $1.t;
+                                        }                                      
                                     }
-                                ;
-// expresionAditiva                : expresionMultiplicativa { $$ = $1; }
-//     | expresionAditiva operadorAditivo expresionMultiplicativa
-//       {
-//          $$.tipo = T_ERROR;
-//          if($1.t != T_ERROR && $3.t != T_ERROR){
-//           if ($1.t != $3.t) {
-//               yyerror("la operación se está realizando con dos tipos de datos distintos");
-//           }else
-//           {
-//             if ($1.t != T_ENTERO) {
-//                  yyerror("expresion no valida : se espera tipo int");
-//             }else{
-//                 $$.t =   T_ENTERO;
-//
-//                 if ($2 == MAS_ ){
-//                   //  $$.v = $1.v + $3.v;
-//                 }else if ($2 == MENOS_ ){
-//                   //  $$.v = $1.v - $3.v;
-//                 }else{
-//                   $$.t =   T_ERROR;
-//                   yyerror("Error : El operador no se corrsponde con el operadorAditivo");
-//                 }
-//
-//
-//             }
-//           }
-//         }else {yyerror("Uno o más opeandos contiene un error de tipo");}
-// };
-
-expresionMultiplicativa         : expresionUnaria
-                                | expresionMultiplicativa operadorMultiplicativo expresionUnaria
+                                }
                                 ;
 
-expresionUnaria                 : expresionSufija
-                                | operadorUnario expresionUnaria
-                                | operadorIncremento ID_
+expresionUnaria                 : expresionSufija{ 
+                                    $$.tipo = $1.tipo;
+                                    $$.pos = $1.pos;
+                                }
+                                | operadorUnario expresionUnaria{   
+                                    $$.tipo = T_ERROR;
+                                    if ($2.t != T_ERROR) {
+                                        if ($1 == NOT) {
+                                            if ($2.t != T_LOGICO) {
+                                                yyerror("expresion unaria no valida para la expresion unaria : se espera una expresion unaria de tipo logica");
+                                            } else { 
+                                                $$.t = $2.t;
+                                            }  
+                                        } 
+                                        else {
+                                            if ($2.t != T_ENTERO) {
+                                                yyerror("expresion unaria no valida para la expresion unaria : se espera una expresion unaria de tipo entera");
+                                            } else { 
+                                                $$.t = $2.t;
+                                            } 
+                                        }                                     
+                                    }                                   
+                                } 
+                                | operadorIncremento ID_ {
+                                    $$.tipo = T_ERROR;
+                                    SIMB simb = obtTdS($2);
+                                    if (simb.t == T_ERROR) {
+                                        yyerror("identificador no declarado : declarelo antes de utilizarlo");
+                                    }
+                                    else{
+                                        $$.t = sim.t;
+                                    }                                                   
+                                } 
                                 ;
 
 expresionSufija                 : APAREN_ expresion CPAREN_{
@@ -367,13 +417,13 @@ expresionSufija                 : APAREN_ expresion CPAREN_{
                                         if(simb.t == T_ERROR){
                                             yyerror("identificador no declarado.");
                                         }else if(simb.t != T_ERROR){
-                                            if($3 != T_ENTERO){
+                                            if($3.t != T_ENTERO){
                                                 yyerror("expresion no valida : se espera tipo int");
                                             }
                                             if(simb.t != T_ARRAY){
                                                 yyerror("identificador no valido : se espera tipo array");
                                             }
-                                            if($3 == T_ENTERO && simb.t == T_ARRAY){
+                                            if($3.t == T_ENTERO && simb.t == T_ARRAY){
                                                     $$.t = simb.t;
                                             }
                                         }
@@ -393,8 +443,9 @@ expresionSufija                 : APAREN_ expresion CPAREN_{
                                         $$.t = T_ERROR;
                                         SIMB simb = obtTdS($1);
                                         if (simb.t == T_ERROR) {
-                                         yyerror("identificador no declarado : declarelo antes de utilizarlo");
-                                        } else {
+                                            yyerror("identificador no declarado : declarelo antes de utilizarlo");
+                                        } 
+                                        else {
                                             $$.t = simb.t;
                                         }
                                     }
@@ -411,8 +462,12 @@ parametrosActuales              : /* vacı́o */{
                                 }
                                 ;
 
-listaParametrosActuales         : expresion
-                                | expresion CMA_ listaParametrosActuales
+listaParametrosActuales         : expresion{
+
+                                }
+                                | expresion CMA_ listaParametrosActuales{
+
+                                }
                                 ;
 
 
@@ -420,37 +475,6 @@ constante                       : CTE_    {$$ = $1}
                                 | TRUE_   {$$ = T_LOGICO}
                                 | FALSE_  {$$ = T_LOGICO}
                                 ;
-
-// operadorLogico                  :AND_{
-//                                     if($1 == $2){
-//                                         if($1.n == $2.n){
-//                                             $$.n = TRUE_;
-//                                         }else {
-//                                             $$.n = FALSE_;
-//                                         }
-//                                     }else{
-//                                         yyerror("identificador de tipos diferentes : tienen que ser del mismo tipo");
-//                                     }
-//                                 }
-//                                 |OR_{
-//                                     if( $1.t == $2.t){
-//                                         if( ($1.t == T_VACIO && $2.t != T_VACIO) || ($1.t == T_VACIO && $2.t != T_VACIO) ){
-//                                             $$.t = $2.t;
-//                                         }
-//                                         else{
-//                                             if($1.t != T_VACIO && $2.t == T_VACIO){
-//                                                 $$.t = $1.t;
-//                                             }
-//                                             else {
-//                                                 $$.t = T_VACIO;
-//                                             }
-//                                         }
-//                                     }
-//                                     else{
-//                                         yyerror("identificador de tipos diferentes : tienen que ser del mismo tipo");
-//                                     }
-//                                 }
-//                                 ;
 
 operadorLogico                  :AND_
                                 |OR_
@@ -466,16 +490,16 @@ operadorRelacional              : MAY_
                                 | MENIGU_
                                 ;
 
-operadorAditivo                 : MAS_      { $$ = ESUM; }
-                                | MENOS_    { $$ = EDIF; }
+operadorAditivo                 : MAS_      
+                                | MENOS_    
                                 ;
 
-operadorMultiplicativo          : POR_      { $$ = EMULT; }
-                                | DIV_      { $$ = EDIVI; }
+operadorMultiplicativo          : POR_      
+                                | DIV_      
                                 ;
 
-operadorUnario                  : MAS_      { $$ = ESUM; }
-                                | MENOS_    { $$ = EDIF; }
+operadorUnario                  : MAS_      
+                                | MENOS_    
                                 | NOT_
                                 ;
 
