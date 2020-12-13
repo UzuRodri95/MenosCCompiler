@@ -1,11 +1,17 @@
 // Ejemplo con errores lexicos: 1 error
-int main ( )
-{
-  int  aAa123_2016;
-  int c#;                         // caracter desconocido
+int F (int x){
+  return x;
+} 
 
-  aAa123_2016 = 3;
-   c = (((aAa123_2016 / 25) + 3.56) - .34) * 2.;
+int main( )
+{
+  int c;
+  int a;
+
+  a=8;
+  c = (2 / 2.2 + 3) / 2.3;
   
   return 0;
 }
+
+

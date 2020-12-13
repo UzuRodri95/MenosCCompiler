@@ -1066,7 +1066,7 @@ YY_RULE_SETUP
 case 45:
 YY_RULE_SETUP
 #line 77 "src/alex.l"
-{ float real = (float)atoll(yytext); yylval.cent = (int)real; retornar(INT_); }
+{ float real = (float)atoll(yytext); yylval.cent = (int)real; retornar(CTE_); }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP

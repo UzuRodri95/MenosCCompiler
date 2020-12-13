@@ -74,7 +74,7 @@ comentario      \/\/.*\n
 "!"		         { retornar(NOT_); }
 "%"		         { retornar(MOD_); }
 
-{real}		    { float real = (float)atoll(yytext); yylval.cent = (int)real; retornar(INT_); }
+{real}		    { float real = (float)atoll(yytext); yylval.cent = (int)real; retornar(CTE_); }
 {numero}            {yylval.cent = atoi(yytext); retornar (CTE_); }
 {identificador}     {yylval.ident = strdup(yytext); retornar (ID_); }
 .		                { yyerror("Caracter desconocido") ;}

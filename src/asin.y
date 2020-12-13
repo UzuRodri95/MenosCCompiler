@@ -18,7 +18,6 @@
 
 int dvar;
 int niv;
-int Daux;
 %}
 
 %union{
@@ -53,22 +52,34 @@ int Daux;
 %type <mat> instruccion listaInstrucciones 
 %%
 
-programa                        :{ niv = GLOBAL; dvar = 0; cargaContexto(niv); if(verTdS) mostrarTdS(); } listaDeclaraciones { if($2.t == 0) yyerror("El programa no tiene main.");}
+programa                        :{ niv = GLOBAL; dvar = 0; cargaContexto(niv); if(verTdS) mostrarTdS(); } listaDeclaraciones { if($2.t == 0) yyerror("El programa no tiene main. 2");}
                                 ;
 
-listaDeclaraciones              : declaracion { $1.t = $1.t; }
+listaDeclaraciones              : declaracion { $$.t = $1.t; }
                                 | listaDeclaraciones declaracion{
-                                        if($1.t == 0)         $$.t = $2.t;
-                                        else if($2.t == 0)  $$.t = $1.t;
-                                             else yyerror("El programa no tiene main.");
+                                    printf("LUGMANSITO69 CHORREA FUERTE 1: %d    2:  %d ", $1.t, $2.t);
+                                    yyerror("\n");
+                                    if($1.t == 0 && $2.t == 0){
+                                        yyerror("El programa no tiene main.");
+                                    }        
+                                    else{
+                                        if($2.t == 0){
+                                            $$.t = $1.t;
+                                        }   
+                                        else{
+                                            $$.t = $2.t;
+                                        }
+                                    } 
                                   }
                                 ;
 
 declaracion                     : declaracionVariable{
                                         dvar = dvar + $1.talla;
+                                        $$.t = $1.t;
                                     }
                                 | declaracionFuncion{
                                         dvar = dvar + $1.talla;
+                                        $$.t = $1.t;
                                     }
                                 ;
 
@@ -76,6 +87,7 @@ declaracionVariable             : tipoSimple ID_ PTOCOMA_{
                                         if(insTdS($2,VARIABLE,$1.t,niv,dvar,-1)){
                                             $$.n = $2;
                                             $$.talla = $$.talla + TALLA_TIPO_SIMPLE;
+                                            $$.t = $1.t;
                                         }else{
                                             $$.t = T_ERROR;
                                             yyerror("Identificador repetido");
@@ -178,14 +190,17 @@ declaracionVariableLocal        : /* vacio */ {
                                 ;
 
 listaInstrucciones              : /* vacio */{
-
+                                    $$.t = T_VACIO;
                                 }
                                 | listaInstrucciones instruccion{
-                                    if($1.t == $2.t){
-                                        $$.t = $2.t;
+                                    printf("VALORES $1 %d      $2 %d ",$1.t, $2.t);
+                                    yyerror("\n");
+                                    if($1.t != T_ERROR && $2.t != T_ERROR){
+                                        $$.t = $1.t;
+                                        $$.v = $1.v;
                                     }else{
                                         $$.t = T_ERROR;
-                                        yyerror(" Error de tipo : Tipo distinto a la lista de instrucciones");
+                                        yyerror("Error de tipo");
                                     } 
                                 }
                                 ;
@@ -211,7 +226,7 @@ instruccion                     : ALLAVE_ listaInstrucciones CLLAVE_{
                                     
                                 }
                                 ;
-//if (! (((simb.t == $3.t) && ($3.t == T_ENTERO)) && ((simb.t == $3.t) && ($3.t == T_LOGICO))))
+
 instruccionAsignacion           : ID_ ASIG_ expresion PTOCOMA_{
                                         SIMB simb = obtTdS($1);
                                         if(simb.t == T_ERROR){
@@ -219,12 +234,11 @@ instruccionAsignacion           : ID_ ASIG_ expresion PTOCOMA_{
                                             yyerror("Objeto no declarado");
                                         }
                                         else if (!((simb.t == $3.t) && ($3.t == T_ENTERO || $3.t == T_LOGICO))){
-                                            printf("Valor simb %d", simb.t);
-                                            printf("Valor %d", $3.t);
                                             $$.t = T_ERROR;
                                             yyerror("Error de tipos en la <asignacion>");
                                         } else{
                                             $$.v = $3.v;
+                                            $$.t = $3.t;
                                         }
                                     }
                                 | ID_ ACORCH_ expresion CCORCH_ ASIG_ expresion PTOCOMA_{
@@ -304,7 +318,6 @@ expresionOpcional               : /* vacı́o */{
                                     $$.t = $1.t;
                                 }
                                 | ID_ ASIG_ expresion{
-                                    //$$.t = T_ERROR;
                                     SIMB simb = obtTdS($1);
                                     if (simb.t == T_ERROR) {
                                         $$.t = T_ERROR;
@@ -325,27 +338,24 @@ expresionOpcional               : /* vacı́o */{
                                 ;
 
 expresion                       : expresionIgualdad{
-                                    printf("\tEXPRESIONIGUALDAD %d \n", $1.t);
-                                    yyerror("\n");
-                                    //$$.t = T_ERROR;
-                                    if ($1.t != T_LOGICO) {
+                                    if ($1.t != T_LOGICO && $1.t != T_ENTERO ) {
                                         $$.t = T_ERROR;
-                                        yyerror("Error en <expresion logica>");
+                                        yyerror("Error en <expresion logica 1>");
                                     }else{
                                         $$.t = $1.t;
                                         $$.v = $1.v;
+                                        printf("ESTOY AQUI %d", $1.v);
                                     }                                        
                                 
                                 }
                                 | expresion operadorLogico expresionIgualdad{
-                                    //$$.t = T_ERROR;
                                     if ($1.t != T_ERROR && $3.t != T_ERROR) {
                                         if ($1.t != T_LOGICO) {
                                             $$.t = T_ERROR;
                                             yyerror("expresion igualdad no valida para la expresion igualdad : se esperaba una expresion igualdad de tipo logica o entera");
                                         } else if ($3.t != T_LOGICO){
                                             $$.t = T_ERROR;
-                                            yyerror("Error en <expresion logica>");
+                                            yyerror("Error en <expresion logica 2>");
                                         } if ($1.t != $3.t) {
                                             $$.t = T_ERROR;
                                             yyerror("expresion igualdad o expresion relacional no valida para la expresion igualdad : se esperaba una expresion igualdad y una expresion relacional del mismo tipo");
@@ -363,9 +373,6 @@ expresion                       : expresionIgualdad{
                                 ;
 
 expresionIgualdad               : expresionRelacional{
-                                    printf("\tEXPRESIONRELACIONAL %d \n", $1.t);
-                                    yyerror("\n");
-                                    //$$.t = T_ERROR; 
                                     if($1.t != T_LOGICO && $1.t != T_ENTERO)
                                     {   
                                         $$.t = T_ERROR;
@@ -375,11 +382,12 @@ expresionIgualdad               : expresionRelacional{
                                     {
                                         $$.t = $1.t;
                                         $$.v = $1.v; 
+                                        printf("\tSOY FAMOSOOO %d", $1.v);
+                                        yyerror("\n");
                                     }  
                                         
                                 }
                                 | expresionIgualdad operadorIgualdad expresionRelacional{
-                                    //$$.t = T_ERROR;
                                     if ($1.t != T_ERROR && $3.t != T_ERROR) {
                                         if ($1.t != T_LOGICO && $1.t != T_ENTERO ) {
                                             $$.t = T_ERROR;
@@ -406,13 +414,12 @@ expresionIgualdad               : expresionRelacional{
                                 ;
 
 expresionRelacional             : expresionAditiva {
-                                    printf("\tEXPRESIONADITIVA $1.t %d\n",$1.t);
-                                    yyerror("\n");
                                     $$.t = $1.t; 
                                     $$.v = $1.v;
+                                    printf("\tSOY YOUTUBER %d", $1.v);
+                                        yyerror("\n");
                                 }
                                 | expresionRelacional operadorRelacional expresionAditiva{
-                                    //$$.t = T_ERROR;
                                     if ($1.t != T_ERROR && $3.t != T_ERROR) {
                                         if ($1.t == T_ENTERO && $1.t==$3.t) {
                                               $$.t = T_ENTERO;
@@ -440,17 +447,16 @@ expresionRelacional             : expresionAditiva {
                                     }
                                 };
 
-expresionAditiva                : expresionMultiplicativa   { 
-                                    printf("\tEXPRESIONMULTIPLICATIVA $1.t %d\n",$1.t);
-                                    yyerror("\n");
+expresionAditiva                : expresionMultiplicativa   {
+                                        printf("\tTENGO 1 M DE SUBS %i", $1.v);
+                                        yyerror("\n");
                                     $$.t = $1.t; 
                                     $$.v = $1.v;
                                 }
                                 | expresionAditiva operadorAditivo expresionMultiplicativa{
-                                    //$$.t = T_ERROR;
-                                    if ($1.t == $3.t && $3.t == T_ENTERO){
-                                        printf("\testoy dentro\n");
+                                    printf("##############################n\t %d %d ", $1.v,$3.v);
                                         yyerror("\n");
+                                    if ($1.t == $3.t && $3.t == T_ENTERO){
                                         $$.t = T_ENTERO;
                                         if($2 == MAS_)
                                             $$.v = $1.v + $3.v;
@@ -465,49 +471,40 @@ expresionAditiva                : expresionMultiplicativa   {
                                 ;
 
 expresionMultiplicativa         : expresionUnaria{
-                                        printf("\tALEJANDRAAAAAAAAAAAA\n");
-                                        yyerror("\n");
                                         $$.t = $1.t;
                                         $$.v = $1.v;
                                 }
                                 | expresionMultiplicativa operadorMultiplicativo expresionUnaria{
-                                    //$$.t = T_ERROR;
-                                    if ($1.t != T_ERROR && $3.t != T_ERROR) {
-                                        if ($1.t != T_ENTERO) {
-                                            $$.t = T_ERROR;
-                                            yyerror("expresion multiplicativa no valida para la expresion multiplicativa : se espera una expresion multiplicativa de tipo entera");
-                                        } else if ($3.t != T_ENTERO) {
-                                            $$.t = T_ERROR;
-                                            yyerror("expresion unaria no valida para la expresion multiplicativa : se espera una expresion unaria de tipo entera");
-                                        } else { 
-                                            $$.t = $1.t;
-                                            printf("\tHOLA QUE TAL %d \n",$1.t);
-                                            yyerror("\n");
-                                            if($2==DIV_)
-                                            {
-                                                $$.v = $1.v / $3.v;
-                                            }else
-                                            {
-                                                $$.v = $1.v * $3.v;
-                                            }                                           
-                                        }                                      
+                                    if ($1.t == T_ENTERO && $3.t == T_ENTERO) {
+                                        $$.t = $1.t;
+                                        printf("\tSOY UNICO %i", $1.v);
+                                        yyerror("\n");
+                                        printf("\tSOY UNICO TAMBIEN %i", $3.v);
+                                        yyerror("\n");
+                                        if($2==DIV_)
+                                        {
+                                            $$.v = $1.v / $3.v;
+                                        }else
+                                        {
+                                            $$.v = $1.v * $3.v;
+                                        }                          
                                     }
+                                    else{
+                                        $$.t = T_ERROR;
+                                        yyerror("Error en expresion multiplicativa");
+                                    } 
                                 }
                                 ;
 
-expresionUnaria                 : expresionSufija{ 
-                                    printf("\tSUFIJA ******************** %d\n",$1.t);
-                                    yyerror("\n");
+expresionUnaria                 : expresionSufija{
                                     $$.t = $1.t;
                                     $$.v = $1.v;
                                 }
-                                | operadorUnario expresionUnaria{ 
-                                    //$$.t = T_ERROR;
+                                | operadorUnario expresionUnaria{
                                     if ($2.t != T_ERROR) {
                                         if ($1 == NOT_) {
                                             if ($2.t != T_LOGICO) {
                                                 $$.t = T_ERROR;
-                                                yyerror("expresion unaria no valida para la expresion unaria : se espera una expresion unaria de tipo logica");
                                             } else { 
                                                 $$.t = $2.t;
                                                 $$.v = !$2.v;
@@ -516,7 +513,6 @@ expresionUnaria                 : expresionSufija{
                                         else {
                                             if ($2.t != T_ENTERO) {
                                                 $$.t = T_ERROR;
-                                                yyerror("expresion unaria no valida para la expresion unaria : se espera una expresion unaria de tipo entera");
                                             } else { 
                                                 $$.t = $2.t;
                                                 if($1 == MAS_)
@@ -528,7 +524,11 @@ expresionUnaria                 : expresionSufija{
                                                 } 
                                             } 
                                         }                                     
-                                    }                                   
+                                    }   
+
+                                    if($$.t == T_ERROR){
+                                        yyerror("Error en expresion unaria, tipo no valido");
+                                    }                                 
                                 } 
                                 | operadorIncremento ID_ {
                                     //$$.t = T_ERROR;
@@ -548,8 +548,8 @@ expresionUnaria                 : expresionSufija{
                                 ;
                                 
 
-expresionSufija                 : APAREN_ expresion CPAREN_{
-                                        printf("\tEXPRESION ------------ %d,\n",$2.t);
+expresionSufija                 : APAREN_ expresion  CPAREN_{
+                                        printf("\tCIERRA PARENTESIS %i", $2.t);
                                         yyerror("\n");
                                         $$.t = $2.t;
                                         $$.v = $2.v;
