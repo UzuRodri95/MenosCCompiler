@@ -35,20 +35,22 @@ int Daux;
 %token <cent>  AND_ OR_ SUMASIG_ RESASIG_ MULASIG_ DIVASIG_ IGU_ NOIGU_ MAYIGU_ MENIGU_ INC_ DEC_  MAY_ MEN_ ASIG_ NOT_ MOD_
 
 %token <cent> INT_ BOOL_ CTE_ TRUE_ FALSE_
-%type <cent> parametrosActuales instruccionAsignacion 
+%type <cent> parametrosActuales 
 %type <cent> operadorAditivo operadorIgualdad operadorIncremento
 %type <cent> operadorLogico operadorMultiplicativo operadorRelacional operadorUnario
 
 %token <ident> ID_ 
 
-%type <exp> programa listaDeclaraciones declaracion instruccion 
-%type <exp> expresionOpcional
+%type <exp> programa listaDeclaraciones declaracion 
+%type <exp> expresionOpcional 
   
 
 %type <str> tipoSimple listaParametrosFormales parametrosFormales declaracionVariable listaParametrosActuales declaracionFuncion 
 %type <str> declaracionVariableLocal cabeceraFuncion 
 
-%type <mat> constante expresion expresionIgualdad expresionRelacional expresionAditiva expresionMultiplicativa expresionSufija expresionUnaria
+%type <mat> constante expresion expresionIgualdad expresionRelacional expresionAditiva expresionMultiplicativa expresionSufija
+%type <mat> expresionUnaria instruccionAsignacion instruccionEntradaSalida instruccionSeleccion instruccionIteracion
+%type <mat> instruccion listaInstrucciones 
 %%
 
 programa                        :{ niv = GLOBAL; dvar = 0; cargaContexto(niv); if(verTdS) mostrarTdS(); } listaDeclaraciones { if($2.t == 0) yyerror("El programa no tiene main.");}
@@ -179,61 +181,88 @@ listaInstrucciones              : /* vacio */{
 
                                 }
                                 | listaInstrucciones instruccion{
-                                    /*  vacio   */
+                                    if($1.t == $2.t){
+                                        $$.t = $2.t;
+                                    }else{
+                                        $$.t = T_ERROR;
+                                        yyerror(" Error de tipo : Tipo distinto a la lista de instrucciones");
+                                    } 
                                 }
                                 ;
 
 instruccion                     : ALLAVE_ listaInstrucciones CLLAVE_{
-
+                                    $$.t = $2.t;
+                                    $$.v = $2.v;
                                 }
                                 | instruccionAsignacion
                                 {
+                                    $$.t = $1.t;
+                                    $$.v = $1.v;
                                     mostrarTdS();
                                 }
                                 | instruccionSeleccion{
-
+                                    $$.t = $1.t;
+                                    $$.v = $1.v;
                                 }
                                 | instruccionEntradaSalida{
-
+                                    $$.t = $1.t;
                                 }
                                 | instruccionIteracion{
-
+                                    
                                 }
                                 ;
-
+//if (! (((simb.t == $3.t) && ($3.t == T_ENTERO)) && ((simb.t == $3.t) && ($3.t == T_LOGICO))))
 instruccionAsignacion           : ID_ ASIG_ expresion PTOCOMA_{
                                         SIMB simb = obtTdS($1);
-                                        if(simb.t == T_ERROR)
+                                        if(simb.t == T_ERROR){
+                                            $$.t = T_ERROR;
                                             yyerror("Objeto no declarado");
-                                        else if (! (((simb.t == $3.t) && ($3.t == T_ENTERO))|| ((simb.t == $3.t) && ($3.t == T_LOGICO))))
+                                        }
+                                        else if (!((simb.t == $3.t) && ($3.t == T_ENTERO || $3.t == T_LOGICO))){
+                                            printf("Valor simb %d", simb.t);
+                                            printf("Valor %d", $3.t);
+                                            $$.t = T_ERROR;
                                             yyerror("Error de tipos en la <asignacion>");
-                                        else{
-                                            $$ = $3.v;
-
+                                        } else{
+                                            $$.v = $3.v;
                                         }
                                     }
                                 | ID_ ACORCH_ expresion CCORCH_ ASIG_ expresion PTOCOMA_{
                                         SIMB simb = obtTdS($1);
-                                        if(simb.t == T_ERROR)
+                                        if(simb.t == T_ERROR){
+                                            $$.t = T_ERROR;
                                             yyerror("Objeto no declarado");
-                                        else if(! ($3.t == T_ENTERO))
+                                        }
+                                        else if(! ($3.t == T_ENTERO)){
+                                            $$.t = T_ERROR;
                                             yyerror("El indice del <array> debe ser entero");
-                                        else if (! (((simb.t == $3.t) && ($3.t == T_ENTERO))|| ((simb.t == $3.t) && ($3.t == T_LOGICO))))
+                                        } 
+                                        else if (! (simb.t == $6.t)){
+                                            $$.t = T_ERROR;
                                             yyerror("Error de tipos en la <asignacion>");
-                                        else if( ! ($1 == T_ARRAY))
+                                        }
+                                        else if( ! (simb.t == T_ARRAY)){
+                                            $$.t = T_ERROR;
                                             yyerror("El identificado debe ser de tipo <array>");
+                                        }
+                                        else{
+                                            $$.t = simb.t;
+                                        }  
+                                            
                                     }
                                 ;
 
 instruccionEntradaSalida        : READ_ APAREN_ ID_ CPAREN_ PTOCOMA_{
                                     SIMB sim = obtTdS($3);
                                     if (sim.t != T_ENTERO) {
+                                        $$.t = T_ERROR;
                                         yyerror("identificador no valido para la instruccion entrada : se esperaba identificador entero");
                                     }
                                 }
                                 | PRINT_ APAREN_ expresion CPAREN_ PTOCOMA_{
                                     if ($3.t != T_ERROR) { 
                                         if ($3.t != T_ENTERO) {
+                                            $$.t = T_ERROR;
                                             yyerror("expresion no valida para la instruccion salida : se esperaba expresion entera");
                                         } 
                                     }
@@ -243,6 +272,7 @@ instruccionEntradaSalida        : READ_ APAREN_ ID_ CPAREN_ PTOCOMA_{
 instruccionSeleccion            : IF_ APAREN_ expresion CPAREN_ instruccion ELSE_ instruccion{
                                     if($3.t != T_ERROR){
                                         if($3.t != T_LOGICO){
+                                            $$.t = T_ERROR;
                                             yyerror("expresion no valida para la instruccion seleccion : se esperaba una expresion logica");
                                         }
                                     }
@@ -256,10 +286,12 @@ instruccionIteracion            : FOR_ APAREN_ expresionOpcional PTOCOMA_ expres
 
                                             }
                                             else{
+                                                $$.t = T_ERROR;
                                                 yyerror("Instrucción mal formada");
                                             }
                                         }
                                         else{
+                                            $$.t = T_ERROR;
                                             yyerror("Error en el operador lógico");
                                         }
                                     }
@@ -272,14 +304,16 @@ expresionOpcional               : /* vacı́o */{
                                     $$.t = $1.t;
                                 }
                                 | ID_ ASIG_ expresion{
-                                    $$.t = T_ERROR;
+                                    //$$.t = T_ERROR;
                                     SIMB simb = obtTdS($1);
                                     if (simb.t == T_ERROR) {
+                                        $$.t = T_ERROR;
                                         yyerror("identificador no declarado : es necesario declararlo antes de utilizarlo");
                                     } 
                                     else{
                                         if ($3.t != T_ERROR) {
                                             if((simb.t != $3.t) || (simb.t == $3.t && simb.t != T_ENTERO && simb.t != T_LOGICO)) {
+                                                $$.t = T_ERROR;
                                                 yyerror("identificador o expresion no valida para la expresion : se esperaba un identificador y una expresion del mismo tipo");
                                             } 
                                             else {
@@ -291,8 +325,11 @@ expresionOpcional               : /* vacı́o */{
                                 ;
 
 expresion                       : expresionIgualdad{
-                                    $$.t = T_ERROR;
+                                    printf("\tEXPRESIONIGUALDAD %d \n", $1.t);
+                                    yyerror("\n");
+                                    //$$.t = T_ERROR;
                                     if ($1.t != T_LOGICO) {
+                                        $$.t = T_ERROR;
                                         yyerror("Error en <expresion logica>");
                                     }else{
                                         $$.t = $1.t;
@@ -301,13 +338,16 @@ expresion                       : expresionIgualdad{
                                 
                                 }
                                 | expresion operadorLogico expresionIgualdad{
-                                    $$.t = T_ERROR;
+                                    //$$.t = T_ERROR;
                                     if ($1.t != T_ERROR && $3.t != T_ERROR) {
                                         if ($1.t != T_LOGICO) {
+                                            $$.t = T_ERROR;
                                             yyerror("expresion igualdad no valida para la expresion igualdad : se esperaba una expresion igualdad de tipo logica o entera");
                                         } else if ($3.t != T_LOGICO){
+                                            $$.t = T_ERROR;
                                             yyerror("Error en <expresion logica>");
                                         } if ($1.t != $3.t) {
+                                            $$.t = T_ERROR;
                                             yyerror("expresion igualdad o expresion relacional no valida para la expresion igualdad : se esperaba una expresion igualdad y una expresion relacional del mismo tipo");
                                         }
                                     } 
@@ -323,26 +363,32 @@ expresion                       : expresionIgualdad{
                                 ;
 
 expresionIgualdad               : expresionRelacional{
-                                    $$.t = T_ERROR; 
+                                    printf("\tEXPRESIONRELACIONAL %d \n", $1.t);
+                                    yyerror("\n");
+                                    //$$.t = T_ERROR; 
                                     if($1.t != T_LOGICO && $1.t != T_ENTERO)
-                                    {
+                                    {   
+                                        $$.t = T_ERROR;
                                         yyerror("expresion igualdad no valida para la expresion igualdad : se esperaba una expresion igualdad de tipo logica");
                                     } 
                                     else
                                     {
-                                        $$.t = T_LOGICO;
+                                        $$.t = $1.t;
                                         $$.v = $1.v; 
                                     }  
                                         
                                 }
                                 | expresionIgualdad operadorIgualdad expresionRelacional{
-                                    $$.t = T_ERROR;
+                                    //$$.t = T_ERROR;
                                     if ($1.t != T_ERROR && $3.t != T_ERROR) {
                                         if ($1.t != T_LOGICO && $1.t != T_ENTERO ) {
+                                            $$.t = T_ERROR;
                                             yyerror("expresion igualdad no valida para la expresion igualdad : se esperaba una expresion igualdad de tipo logica o entera");
                                         } else if ($3.t != T_LOGICO && $3.t != T_ENTERO) {
+                                            $$.t = T_ERROR;
                                             yyerror("expresion relacional no valida para la expresion igualdad : se esperaba una expresion relacional de tipo logica o entera");
                                         } if ($1.t != $3.t) {
+                                            $$.t = T_ERROR;
                                             yyerror("expresion igualdad o expresion relacional no valida para la expresion igualdad : se esperaba una expresion igualdad y una expresion relacional del mismo tipo");
                                         }
                                     } 
@@ -354,17 +400,19 @@ expresionIgualdad               : expresionRelacional{
                                             $$.v = $1.v != $3.v;
                                         } 
                                         
-                                        $$.t = T_LOGICO;
+                                        $$.t = $1.t;
                                     }                                     
                                 }
                                 ;
 
 expresionRelacional             : expresionAditiva {
+                                    printf("\tEXPRESIONADITIVA $1.t %d\n",$1.t);
+                                    yyerror("\n");
                                     $$.t = $1.t; 
                                     $$.v = $1.v;
                                 }
                                 | expresionRelacional operadorRelacional expresionAditiva{
-                                    $$.t = T_ERROR;
+                                    //$$.t = T_ERROR;
                                     if ($1.t != T_ERROR && $3.t != T_ERROR) {
                                         if ($1.t == T_ENTERO && $1.t==$3.t) {
                                               $$.t = T_ENTERO;
@@ -386,19 +434,23 @@ expresionRelacional             : expresionAditiva {
 
                                         } 
                                     else { 
-                                      
+                                        $$.t = T_ERROR;
                                         yyerror("Error en expresionRelacional : operandos nos son de tipo entero.");
                                     }                                      
                                     }
                                 };
 
 expresionAditiva                : expresionMultiplicativa   { 
+                                    printf("\tEXPRESIONMULTIPLICATIVA $1.t %d\n",$1.t);
+                                    yyerror("\n");
                                     $$.t = $1.t; 
                                     $$.v = $1.v;
                                 }
                                 | expresionAditiva operadorAditivo expresionMultiplicativa{
-                                    $$.t = T_ERROR;
+                                    //$$.t = T_ERROR;
                                     if ($1.t == $3.t && $3.t == T_ENTERO){
+                                        printf("\testoy dentro\n");
+                                        yyerror("\n");
                                         $$.t = T_ENTERO;
                                         if($2 == MAS_)
                                             $$.v = $1.v + $3.v;
@@ -406,24 +458,31 @@ expresionAditiva                : expresionMultiplicativa   {
                                             $$.v = $1.v - $3.v;
                                     } 
                                     else{
+                                        $$.t = T_ERROR;
                                         yyerror("Error de tipos en la expresion aditiva");
                                     }
                                 }
                                 ;
 
 expresionMultiplicativa         : expresionUnaria{
-                                    $$.t = $1.t;
-                                    $$.v = $1.v;
+                                        printf("\tALEJANDRAAAAAAAAAAAA\n");
+                                        yyerror("\n");
+                                        $$.t = $1.t;
+                                        $$.v = $1.v;
                                 }
                                 | expresionMultiplicativa operadorMultiplicativo expresionUnaria{
-                                    $$.t = T_ERROR;
+                                    //$$.t = T_ERROR;
                                     if ($1.t != T_ERROR && $3.t != T_ERROR) {
                                         if ($1.t != T_ENTERO) {
+                                            $$.t = T_ERROR;
                                             yyerror("expresion multiplicativa no valida para la expresion multiplicativa : se espera una expresion multiplicativa de tipo entera");
                                         } else if ($3.t != T_ENTERO) {
+                                            $$.t = T_ERROR;
                                             yyerror("expresion unaria no valida para la expresion multiplicativa : se espera una expresion unaria de tipo entera");
                                         } else { 
                                             $$.t = $1.t;
+                                            printf("\tHOLA QUE TAL %d \n",$1.t);
+                                            yyerror("\n");
                                             if($2==DIV_)
                                             {
                                                 $$.v = $1.v / $3.v;
@@ -437,14 +496,17 @@ expresionMultiplicativa         : expresionUnaria{
                                 ;
 
 expresionUnaria                 : expresionSufija{ 
+                                    printf("\tSUFIJA ******************** %d\n",$1.t);
+                                    yyerror("\n");
                                     $$.t = $1.t;
                                     $$.v = $1.v;
                                 }
-                                | operadorUnario expresionUnaria{   
-                                    $$.t = T_ERROR;
+                                | operadorUnario expresionUnaria{ 
+                                    //$$.t = T_ERROR;
                                     if ($2.t != T_ERROR) {
                                         if ($1 == NOT_) {
                                             if ($2.t != T_LOGICO) {
+                                                $$.t = T_ERROR;
                                                 yyerror("expresion unaria no valida para la expresion unaria : se espera una expresion unaria de tipo logica");
                                             } else { 
                                                 $$.t = $2.t;
@@ -453,6 +515,7 @@ expresionUnaria                 : expresionSufija{
                                         } 
                                         else {
                                             if ($2.t != T_ENTERO) {
+                                                $$.t = T_ERROR;
                                                 yyerror("expresion unaria no valida para la expresion unaria : se espera una expresion unaria de tipo entera");
                                             } else { 
                                                 $$.t = $2.t;
@@ -468,9 +531,10 @@ expresionUnaria                 : expresionSufija{
                                     }                                   
                                 } 
                                 | operadorIncremento ID_ {
-                                    $$.t = T_ERROR;
+                                    //$$.t = T_ERROR;
                                     SIMB simb = obtTdS($2);
                                     if (simb.t == T_ERROR) {
+                                        $$.t = T_ERROR;
                                         yyerror("identificador no declarado : declarelo antes de utilizarlo");
                                     }
                                     else{
@@ -485,15 +549,19 @@ expresionUnaria                 : expresionSufija{
                                 
 
 expresionSufija                 : APAREN_ expresion CPAREN_{
+                                        printf("\tEXPRESION ------------ %d,\n",$2.t);
+                                        yyerror("\n");
                                         $$.t = $2.t;
                                         $$.v = $2.v;
                                     }
                                 | ID_ operadorIncremento{
-                                        $$.t = T_ERROR;
+                                        //$$.t = T_ERROR;
                                         SIMB simb = obtTdS($1);
                                         if(simb.t == T_ERROR){
+                                            $$.t = T_ERROR;
                                             yyerror("identificador no declarado.");
                                         }else if(simb.t != T_ENTERO){
+                                            $$.t = T_ERROR;
                                             yyerror("identificador no valido, unicamente valido con tipo int");
                                         }else{
                                             $$.t = simb.t;
@@ -501,41 +569,43 @@ expresionSufija                 : APAREN_ expresion CPAREN_{
                                         }
                                     }
                                 | ID_ ACORCH_ expresion CCORCH_{
-                                        $$.t = T_ERROR;
+                                        //$$.t = T_ERROR;
                                         SIMB simb = obtTdS($1);
                                         if(simb.t == T_ERROR){
+                                            $$.t = T_ERROR;
                                             yyerror("identificador no declarado.");
                                         }else if(simb.t != T_ERROR){
                                             if($3.t != T_ENTERO){
+                                                $$.t = T_ERROR;
                                                 yyerror("expresion no valida : se espera tipo int");
                                             }
                                             if(simb.t != T_ARRAY){
+                                                $$.t = T_ERROR;
                                                 yyerror("identificador no valido : se espera tipo array");
                                             }
                                             if($3.t == T_ENTERO && simb.t == T_ARRAY){
-                                                   
                                                     $$.t = simb.t;
-                                                    $$.v = simb.d;
-                                                    // Revisar
-
-                                            }
+                                            } 
                                         }
                                     }
                                 | ID_ APAREN_ parametrosActuales CPAREN_{
-                                        $$.t = T_ERROR;
+                                        //$$.t = T_ERROR;
                                         SIMB simb = obtTdS($1);
                                         if(simb.t != T_ENTERO && simb.t != T_LOGICO){
+                                            $$.t = T_ERROR;
                                             yyerror("inconsistencia de tipos : identificador y parametros actuales no son del mismo tipo");
                                         }else if(simb.t != $3){
+                                            $$.t = T_ERROR;
                                             yyerror("identificador no valido : no corresponde con el tipo de parametros actuales");
                                         }else{
                                             $$.t = simb.t;
                                         }
                                     }
                                 | ID_ {
-                                        $$.t = T_ERROR;
+                                        //$$.t = T_ERROR;
                                         SIMB simb = obtTdS($1);
                                         if (simb.t == T_ERROR) {
+                                            $$.t = T_ERROR;
                                             yyerror("identificador no declarado : declarelo antes de utilizarlo");
                                         } 
                                         else {
