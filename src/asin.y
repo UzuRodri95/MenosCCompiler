@@ -13,6 +13,9 @@
 #include "header.h"
 #include "libtds.h"
 
+#define GLOBAL 0
+#define LOCAL 1
+
 int dvar;
 int niv;
 int Daux;
@@ -48,21 +51,15 @@ int Daux;
 %type <mat> constante 
 %%
 
-programa                        :{
-                                    dvar = 0;
-                                    niv = 0;
-                                    }
-                                | listaDeclaraciones {
-                                        /*  vacio   */
-                                    }
+programa                        :{ niv = GLOBAL; dvar = 0; cargaContexto(niv); if(verTdS) mostrarTdS(); } listaDeclaraciones { if($2.t == 0) yyerror("El programa no tiene main.");}
                                 ;
 
-listaDeclaraciones              : declaracion {
-                                        /*  vacio   */
-                                    }
+listaDeclaraciones              : declaracion { $1.t = $1.t; }
                                 | listaDeclaraciones declaracion{
-                                        /*  vacio   */
-                                    }
+                                        if($1.t == 0)         $$.t = $2.t;
+                                        else if($2.t == 0)  $$.t = $1.t;
+                                             else yyerror("El programa no tiene main.");
+                                  }
                                 ;
 
 declaracion                     : declaracionVariable{
@@ -113,41 +110,22 @@ tipoSimple                      : INT_ {
                                     }
                                 ;
 
-declaracionFuncion              : cabeceraFuncion bloque {
-                                        /*  vacio   */
-                                        
-                                    }
+declaracionFuncion              : cabeceraFuncion { $<cent>$ = dvar; dvar = 0; } bloque { descargaContexto(niv); niv = GLOBAL; dvar = $<cent>2; }
                                 ;
 
-cabeceraFuncion                 : tipoSimple ID_ APAREN_ parametrosFormales CPAREN_{
-                                       //printf("Estamos en cabeceraFunció\n");  
-                                       yyerror("cabeceraFuncion");           
-                                    
-                                        
-                                       
-                                      
-                                        printf("Nivel: %i: ",niv);
-                                        yyerror("/niv");  
-                                        cargaContexto(niv);
-                                        descargaContexto(niv); 
-                                       if(insTdS($2,FUNCION,$1.t,niv,$4.talla,-1)){
-                                           niv++;
+cabeceraFuncion                 : tipoSimple ID_ { niv = LOCAL; cargaContexto(niv);} APAREN_ parametrosFormales CPAREN_{ 
+                                        //mostrarTdS();
+                                        if(insTdS($2,FUNCION,$1.t,niv,$5.talla,-1)){
+                                           mostrarTdS();
                                            $$.n = $2;
                                            $$.t = $1.t;
-                                           $$.talla = $4.talla;
-                                            yyerror("cabeceraFuncion");                                           
-                                            mostrarTdS();     
-                                                                                 
-                                            yyerror("/cabeceraFuncion");
-                                            niv++;
-                                          
-                                           
+                                           $$.talla = $5.talla;   
                                        }
                                        else{
                                            $$.t = T_ERROR;
                                            yyerror("Ya existe variable, se ha declarado previamente");
                                        }
-                                       mostrarTdS();
+                                       //mostrarTdS();
                                       
                                     }
                                 ;
@@ -168,24 +146,19 @@ listaParametrosFormales         : tipoSimple ID_{
                                     insTdS($2,PARAMETRO,$1.t,niv,-$$.talla,-1);
                                 }
                                 | tipoSimple ID_ CMA_ listaParametrosFormales{
-                                    // if($1.t == $4.t && $1.t != T_ERROR){
-                                    //     $$.t == $1.t;
-                                    //     $$.talla = $4.talla + $1.talla;
-                                    //     insTdS($2,PARAMETRO,$1.t,niv,-$$.talla,-1);
-                                    // }
+                                     if($1.t == $4.t && $1.t != T_ERROR){
+                                         $$.t == $1.t;
+                                         $$.talla = $4.talla + $1.talla;
+                                         insTdS($2,PARAMETRO,$1.t,niv,-$$.talla,-1);
+                                     }
                                 }
                                 ;
 
 bloque                          : {
-                                    niv++;
-                                    cargaContexto(niv);
-                                    Daux = dvar; 
-                                    dvar = 0;
+                                    /* vacio */
                                 }
                                 | ALLAVE_ declaracionVariableLocal listaInstrucciones RETURN_ expresion PTOCOMA_ CLLAVE_{
-                                    niv--;
-                                    descargaContexto(niv);
-                                    dvar = Daux;
+                                    /* vacio */
                                 }
                                 ;
 

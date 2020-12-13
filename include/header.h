@@ -15,6 +15,13 @@ extern int yyparse();
 extern FILE *yyin;
 extern int   yylineno;
 
+/************************************* Variables externas definidas en el Programa Principal */
+extern int verTdS;
+
+/************************************* Variables externas definidas en las librerias */
+extern int dvar;
+extern int niv;
+
 typedef struct exp {                        /* Estructura para las expresiones  */
     int t;     //TIPO
     int p;     //POSICION   
@@ -30,12 +37,11 @@ typedef struct mat{                        /* Estructura para las estructuras qu
     int t;      //TIPO
 }   MAT;
 
+
 /********************************* Funciones y variables externas auxiliares */
 extern int verbosidad;                   /* Flag si se desea una traza       */
 
 extern void yyerror(const char * msg) ;      /* Tratamiento de errores       */
-
-
 
 #endif  /* _HEADER_H */
 /*****************************************************************************/

@@ -20,6 +20,7 @@
 delimitador     [ \t\n]+
 identificador   [_a-zA-Z][_a-zA-Z0-9]*
 numero          [0-9]+("."[0-9]*)?|[0-9]*"."[0-9]+
+real	        {numero}\.{numero}|\.{numero}|{numero}\.
 comentario      \/\/.*\n
 
 %%
@@ -40,7 +41,7 @@ comentario      \/\/.*\n
 "read"         {retornar (READ_) ;}
 "struct"       {retornar (FALSE_) ;}
 
-"{"            { retornar(ALLAVE_); fprintf(stdout,"%3d.- ",yylineno); }
+"{"            { retornar(ALLAVE_); }
 "}"            { retornar(CLLAVE_); }
 "["            { retornar(ACORCH_); }
 "]"            { retornar(CCORCH_); }
@@ -73,6 +74,7 @@ comentario      \/\/.*\n
 "!"		         { retornar(NOT_); }
 "%"		         { retornar(MOD_); }
 
+{real}		    { float real = (float)atoll(yytext); yylval.cent = (int)real; retornar(INT_); }
 {numero}            {yylval.cent = atoi(yytext); retornar (CTE_); }
 {identificador}     {yylval.ident = strdup(yytext); retornar (ID_); }
 .		                { yyerror("Caracter desconocido") ;}
