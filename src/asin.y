@@ -1,9 +1,9 @@
 /*****************************************************************************/
 /** ANALIZADOR SINTACTICO                                           GRUPO 9 **/
 /** Autores: Álvaro Rodríguez Sánchez
-/**          Vladyslav
-/**          Lugman
-/**          Miguel
+/**          Vladyslav Mazurkevych
+/**          Lugman Ahmad Mansilla
+/**          Miguel Angel Navarro Arenas
 /**
 /*****************************************************************************/
 
@@ -40,25 +40,21 @@ int niv;
 
 %token <ident> ID_ 
 
-%type <exp> programa listaDeclaraciones declaracion 
-%type <exp> expresionOpcional 
+%type <exp> programa listaDeclaraciones 
   
-
 %type <str> tipoSimple listaParametrosFormales parametrosFormales declaracionVariable listaParametrosActuales declaracionFuncion 
 %type <str> declaracionVariableLocal cabeceraFuncion 
 
 %type <mat> constante expresion expresionIgualdad expresionRelacional expresionAditiva expresionMultiplicativa expresionSufija
 %type <mat> expresionUnaria instruccionAsignacion instruccionEntradaSalida instruccionSeleccion instruccionIteracion
-%type <mat> instruccion listaInstrucciones 
+%type <mat> instruccion listaInstrucciones expresionOpcional declaracion 
 %%
 
-programa                        :{ niv = GLOBAL; dvar = 0; cargaContexto(niv); if(verTdS) mostrarTdS(); } listaDeclaraciones { if($2.t == 0) yyerror("El programa no tiene main. 2");}
+programa                        :{ niv = GLOBAL; dvar = 0; cargaContexto(niv);} listaDeclaraciones { if($2.t == 0) yyerror("El programa no tiene main. 2");}
                                 ;
 
 listaDeclaraciones              : declaracion { $$.t = $1.t; }
                                 | listaDeclaraciones declaracion{
-                                    printf("LUGMANSITO69 CHORREA FUERTE 1: %d    2:  %d ", $1.t, $2.t);
-                                    yyerror("\n");
                                     if($1.t == 0 && $2.t == 0){
                                         yyerror("El programa no tiene main.");
                                     }        
@@ -77,7 +73,7 @@ declaracion                     : declaracionVariable{
                                         dvar = dvar + $1.talla;
                                         $$.t = $1.t;
                                     }
-                                | declaracionFuncion{
+                                | declaracionFuncion{ 
                                         dvar = dvar + $1.talla;
                                         $$.t = $1.t;
                                     }
@@ -109,8 +105,7 @@ declaracionVariable             : tipoSimple ID_ PTOCOMA_{
                                             else{
                                                 yyerror("Identificador repetido");
                                             }
-                                        }
-                                         mostrarTdS();
+                                        };
                                     }
                                 ;
 
@@ -124,21 +119,19 @@ tipoSimple                      : INT_ {
                                     }
                                 ;
 
-declaracionFuncion              : cabeceraFuncion { $<cent>$ = dvar; dvar = 0; } bloque { descargaContexto(niv); niv = GLOBAL; dvar = $<cent>2; }
+declaracionFuncion              : cabeceraFuncion { $<cent>$ = dvar; dvar = 0; } bloque { if(verTdS == TRUE) mostrarTdS(); descargaContexto(niv); niv = GLOBAL; dvar = $<cent>2; }
                                 ;
 
-cabeceraFuncion                 : tipoSimple ID_ { niv = LOCAL; cargaContexto(niv);} APAREN_ parametrosFormales CPAREN_{ 
-                                        //mostrarTdS();
+cabeceraFuncion                 : tipoSimple ID_ { niv = LOCAL; cargaContexto(niv);} APAREN_ parametrosFormales CPAREN_{
                                         if(insTdS($2,FUNCION,$1.t,niv,$5.talla,-1)){
                                            $$.n = $2;
                                            $$.t = $1.t;
                                            $$.talla = $5.talla;   
-                                       }
-                                       else{
+                                        }
+                                        else{
                                            $$.t = T_ERROR;
                                            yyerror("Ya existe variable, se ha declarado previamente");
-                                       }
-                                       //mostrarTdS();
+                                        }
                                       
                                     }
                                 ;
@@ -193,8 +186,6 @@ listaInstrucciones              : /* vacio */{
                                     $$.t = T_VACIO;
                                 }
                                 | listaInstrucciones instruccion{
-                                    printf("VALORES $1 %d      $2 %d ",$1.t, $2.t);
-                                    yyerror("\n");
                                     if($1.t != T_ERROR && $2.t != T_ERROR){
                                         $$.t = $1.t;
                                         $$.v = $1.v;
@@ -213,7 +204,6 @@ instruccion                     : ALLAVE_ listaInstrucciones CLLAVE_{
                                 {
                                     $$.t = $1.t;
                                     $$.v = $1.v;
-                                    mostrarTdS();
                                 }
                                 | instruccionSeleccion{
                                     $$.t = $1.t;
@@ -223,7 +213,8 @@ instruccion                     : ALLAVE_ listaInstrucciones CLLAVE_{
                                     $$.t = $1.t;
                                 }
                                 | instruccionIteracion{
-                                    
+                                    $$.t = $1.t;
+                                    $$.v = $1.v;
                                 }
                                 ;
 
@@ -297,7 +288,8 @@ instruccionSeleccion            : IF_ APAREN_ expresion CPAREN_ instruccion ELSE
 instruccionIteracion            : FOR_ APAREN_ expresionOpcional PTOCOMA_ expresion PTOCOMA_ expresionOpcional CPAREN_ instruccion{
                                         if($5.t == T_LOGICO){
                                             if(($3.t != T_ERROR || $3.t == T_VACIO ) && ($7.t != T_ERROR || $7.t == T_VACIO )){
-
+                                                $$.t = $3.t;
+                                                $$.v = $3.v;
                                             }
                                             else{
                                                 $$.t = T_ERROR;
@@ -316,6 +308,7 @@ expresionOpcional               : /* vacı́o */{
                                 }
                                 | expresion{
                                     $$.t = $1.t;
+                                    $$.v = $1.v;
                                 }
                                 | ID_ ASIG_ expresion{
                                     SIMB simb = obtTdS($1);
@@ -331,6 +324,7 @@ expresionOpcional               : /* vacı́o */{
                                             } 
                                             else {
                                                 $$.t = simb.t;
+                                                $$.v = $3.v;
                                             }
                                         }
                                     } 
@@ -344,7 +338,6 @@ expresion                       : expresionIgualdad{
                                     }else{
                                         $$.t = $1.t;
                                         $$.v = $1.v;
-                                        printf("ESTOY AQUI %d", $1.v);
                                     }                                        
                                 
                                 }
@@ -381,9 +374,7 @@ expresionIgualdad               : expresionRelacional{
                                     else
                                     {
                                         $$.t = $1.t;
-                                        $$.v = $1.v; 
-                                        printf("\tSOY FAMOSOOO %d", $1.v);
-                                        yyerror("\n");
+                                        $$.v = $1.v;
                                     }  
                                         
                                 }
@@ -416,8 +407,6 @@ expresionIgualdad               : expresionRelacional{
 expresionRelacional             : expresionAditiva {
                                     $$.t = $1.t; 
                                     $$.v = $1.v;
-                                    printf("\tSOY YOUTUBER %d", $1.v);
-                                        yyerror("\n");
                                 }
                                 | expresionRelacional operadorRelacional expresionAditiva{
                                     if ($1.t != T_ERROR && $3.t != T_ERROR) {
@@ -448,13 +437,10 @@ expresionRelacional             : expresionAditiva {
                                 };
 
 expresionAditiva                : expresionMultiplicativa   {
-                                        printf("\tTENGO 1 M DE SUBS %i", $1.v);
-                                        yyerror("\n");
                                     $$.t = $1.t; 
                                     $$.v = $1.v;
                                 }
                                 | expresionAditiva operadorAditivo expresionMultiplicativa{
-                                    printf("##############################n\t %d %d ", $1.v,$3.v);
                                         yyerror("\n");
                                     if ($1.t == $3.t && $3.t == T_ENTERO){
                                         $$.t = T_ENTERO;
@@ -477,10 +463,6 @@ expresionMultiplicativa         : expresionUnaria{
                                 | expresionMultiplicativa operadorMultiplicativo expresionUnaria{
                                     if ($1.t == T_ENTERO && $3.t == T_ENTERO) {
                                         $$.t = $1.t;
-                                        printf("\tSOY UNICO %i", $1.v);
-                                        yyerror("\n");
-                                        printf("\tSOY UNICO TAMBIEN %i", $3.v);
-                                        yyerror("\n");
                                         if($2==DIV_)
                                         {
                                             $$.v = $1.v / $3.v;
@@ -531,7 +513,6 @@ expresionUnaria                 : expresionSufija{
                                     }                                 
                                 } 
                                 | operadorIncremento ID_ {
-                                    //$$.t = T_ERROR;
                                     SIMB simb = obtTdS($2);
                                     if (simb.t == T_ERROR) {
                                         $$.t = T_ERROR;
@@ -549,13 +530,10 @@ expresionUnaria                 : expresionSufija{
                                 
 
 expresionSufija                 : APAREN_ expresion  CPAREN_{
-                                        printf("\tCIERRA PARENTESIS %i", $2.t);
-                                        yyerror("\n");
                                         $$.t = $2.t;
                                         $$.v = $2.v;
                                     }
                                 | ID_ operadorIncremento{
-                                        //$$.t = T_ERROR;
                                         SIMB simb = obtTdS($1);
                                         if(simb.t == T_ERROR){
                                             $$.t = T_ERROR;
@@ -569,7 +547,6 @@ expresionSufija                 : APAREN_ expresion  CPAREN_{
                                         }
                                     }
                                 | ID_ ACORCH_ expresion CCORCH_{
-                                        //$$.t = T_ERROR;
                                         SIMB simb = obtTdS($1);
                                         if(simb.t == T_ERROR){
                                             $$.t = T_ERROR;
@@ -589,7 +566,6 @@ expresionSufija                 : APAREN_ expresion  CPAREN_{
                                         }
                                     }
                                 | ID_ APAREN_ parametrosActuales CPAREN_{
-                                        //$$.t = T_ERROR;
                                         SIMB simb = obtTdS($1);
                                         if(simb.t != T_ENTERO && simb.t != T_LOGICO){
                                             $$.t = T_ERROR;
@@ -602,7 +578,6 @@ expresionSufija                 : APAREN_ expresion  CPAREN_{
                                         }
                                     }
                                 | ID_ {
-                                        //$$.t = T_ERROR;
                                         SIMB simb = obtTdS($1);
                                         if (simb.t == T_ERROR) {
                                             $$.t = T_ERROR;
