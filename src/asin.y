@@ -143,13 +143,17 @@ parametrosFormales              : /* vacio */{
 listaParametrosFormales         : tipoSimple ID_{
                                     $$.t = $1.t;
                                     $$.talla = TALLA_SEGENLACES + $1.talla;
-                                    insTdS($2,PARAMETRO,$1.t,niv,-$$.talla,-1);
+                                    int ref = insTdD(-1,$1.t);
+                                    $$.refe = ref; 
+                                    insTdS($2,PARAMETRO,$1.t,niv,-$$.talla,ref);
                                 }
                                 | tipoSimple ID_ CMA_ listaParametrosFormales{
                                      if($1.t == $4.t && $1.t != T_ERROR){
                                          $$.t == $1.t;
                                          $$.talla = $4.talla + $1.talla;
-                                         insTdS($2,PARAMETRO,$1.t,niv,-$$.talla,-1);
+                                         
+                                         int ref = insTdD($4.refe, $1.t);
+                                         insTdS($2,PARAMETRO,$1.t,niv,-$$.talla,ref);
                                      }
                                 }
                                 ;

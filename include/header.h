@@ -31,6 +31,7 @@ typedef struct str {                        /* Estructura para las estructuras c
     char* n;    //NOMBRE
     int t;      //TIPO
     int talla;  //TALLA
+    int refe;
 }   STR;
 typedef struct mat{                        /* Estructura para las estructuras que utilicen valores  */
     int v;      //VALOR
