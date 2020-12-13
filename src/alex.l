@@ -20,7 +20,7 @@
 delimitador     [ \t\n]+
 identificador   [_a-zA-Z][_a-zA-Z0-9]*
 numero          [0-9]+("."[0-9]*)?|[0-9]*"."[0-9]+
-real	        {numero}\.{numero}|\.{numero}|{numero}\.
+real	          {numero}\.{numero}|\.{numero}|{numero}\.
 comentario      \/\/.*\n
 
 %%

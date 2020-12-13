@@ -5,7 +5,7 @@ int main ( )
   int c#;                         // caracter desconocido
 
   aAa123_2016 = 3;
-  c = (((aAa123_2016 / 2) + 3.56) - .34) * 2.;
+   c = (((aAa123_2016 / 2) + 3.56) - .34) * 2.;
   
   return 0;
 }
