@@ -17,11 +17,14 @@
 %option nounput
 %option yylineno
 
+letras          [a-zA-Z]
+alfanumerico    {letras}|"_"|{digito}
+identificador   {letras}{alfanumerico}*
 delimitador     [ \t\n]+
-identificador   [_a-zA-Z][_a-zA-Z0-9]*
-numero          [0-9]+("."[0-9]*)?|[0-9]*"."[0-9]+
-real	          {numero}\.{numero}|\.{numero}|{numero}\.
-comentario      \/\/.*\n
+digito          [0-9]
+entero          {digito}+
+real	          {entero}\.{entero}|\.{entero}|{entero}\.
+comentario 	    "//"[^\n]*\n
 
 %%
 
@@ -75,7 +78,7 @@ comentario      \/\/.*\n
 "%"		         { retornar(MOD_); }
 
 {real}		    { float real = (float)atoll(yytext); yylval.cent = (int)real; retornar(CTE_); }
-{numero}            {yylval.cent = atoi(yytext); retornar (CTE_); }
+{entero}            {yylval.cent = atoi(yytext); retornar (CTE_); }
 {identificador}     {yylval.ident = strdup(yytext); retornar (ID_); }
 .		                { yyerror("Caracter desconocido") ;}
 
