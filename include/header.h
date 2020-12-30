@@ -21,6 +21,8 @@ extern int verTdS;
 /************************************* Variables externas definidas en las librerias */
 extern int dvar;
 extern int niv;
+extern int si; /* Desplazamiento relativo en el Segmento de C´odigo */
+
 
 typedef struct exp {                        /* Estructura para las expresiones  */
     int t;     //TIPO
@@ -32,6 +34,7 @@ typedef struct str {                        /* Estructura para las estructuras c
     int t;      //TIPO
     int talla;  //TALLA
     int refe;
+    int d;      //DESPLAZAMIENTO
 }   STR;
 
 /********************************* Funciones y variables externas auxiliares */
