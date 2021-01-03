@@ -33,7 +33,7 @@
 #define EWRITE       17
 #define FIN          18
 #define RET          19
-#define CALL         20
+#define CALL         20 
 #define EPUSH        21
 #define EPOP         22
 #define PUSHFP       23
@@ -86,7 +86,7 @@ void emite (int cop, TIPO_ARG arg1, TIPO_ARG arg2, TIPO_ARG res);
 int creaVarTemp ();
 /*  Crea una variable temporal de tipo simple (TALLA_TIPO_SIMPLE = 1), en el 
     segmento de variables (indicado por "dvar") y devuelve su desplazamiento 
-    relativo. A continuacón, incrementa "dvar".                              */
+    relativo. A continuacï¿½n, incrementa "dvar".                              */
 
 void volcarCodigo(char *nom) ;
 /* Vuelca (en modo texto) el codigo generado en un fichero cuyo nombre es el 

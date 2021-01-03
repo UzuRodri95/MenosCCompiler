@@ -288,27 +288,39 @@ instruccionSeleccion            : IF_ APAREN_ expresion CPAREN_ instruccion ELSE
                                     
                                 }
                                 ;
+// Por terminar
 
-instruccionIteracion            : FOR_ APAREN_ expresionOpcional PTOCOMA_ expresion PTOCOMA_ expresionOpcional CPAREN_ instruccion{
-                                        if($5.t == T_LOGICO){
-                                            if(($3.t != T_ERROR || $3.t == T_VACIO ) && ($7.t != T_ERROR || $7.t == T_VACIO )){
-                                                $$.t = $3.t;
-                                            }
-                                            else{
-                                                $$.t = T_ERROR;
-                                            }
-                                        }
-                                        else{
-                                            $$.t = T_ERROR;
-                                        }
-
-                                        if($$.t == T_ERROR){
-                                            yyerror("Error en expresion logica");
-                                        } 
+instruccionIteracion            : FOR_ APAREN_ expresionOpcional /*$4*/{  $<cent>$ = si; } PTOCOMA_ expresion {
+                                     if($6.t == T_LOGICO){
+                                        $$.t = $3.t;
+                                        //S.lv = CreaLans(si); 
+                                         $<cent>$ = creaLans(si); // $7                                         
+                                        //Emite( if E2.d = '1' goto X)
+                                         emite(EIGUAL,crArgPos(niv,$<cent>7.d),crArgEnt(1),crArgEtq($<cent>4.d));
+                                        
+                                        
+                                        
+                                        //S.if = CreaLans(si); 
+                                         $<cent>$ = creaLans(si); // $7    
+                                        //Emite(goto X)
+                                         emite(GOTOS,crArgPos(niv,$<cent>7.d),crArgEnt(1),crArgEtq($<cent>4.d));
+                                        //S.aux = si
+                                        $<cent>$ = si;
+                                            
                                     }
-                                    ;     
+                                    else
+                                    {
+                                        $$.t = T_ERROR;
+                                        yyerror("Error en expresion logica");
+                                    }
+                                        
+                                  }  PTOCOMA_ expresionOpcional CPAREN_ instruccion
+                                       
+                                    
+                                        
 
 expresionOpcional               : /* vacı́o */{
+                                    $$.t = T_VACIO;
 
                                 }
                                 | expresion{
@@ -326,6 +338,9 @@ expresionOpcional               : /* vacı́o */{
                                             } 
                                             else {
                                                 $$.t = simb.t;
+                                                // Id = E
+                                                emite(EASIG, crArgPos($3.d),crArgNul(), crArgPos(simb.d));
+
                                             }
                                         }
                                     } 
@@ -355,20 +370,30 @@ expresion                       : expresionIgualdad{
                                         }
                                     } 
                                     else { 
-                                        $$.t = T_LOGICO;                                        
+                                        $$.t = T_LOGICO; 
+                                        // 1º Sumar
+                                        $$.d = creaVarTemp();
+                                        if($2 == AND_ )
+                                        {                                        
+                                          emite($2, crArgPos(niv,$1.d),crArgPos(niv,$3.d),  crArgPos(niv,$$.d));      
+                                        }else
+                                        {
+                                          emite($2, crArgPos(niv,$1.d),crArgPos(niv,$3.d),  crArgPos(niv,$$.d));                                           
+                                          
+                                          emite(EMENEQ, crArgPos(niv,$$.d),crArgEnt(1),  crArgEtq(si +2)); 
+                                          emite(EASIG, crArgEnt(1),crArgNul(), crArgPos($$.d));
+                                        } 
+                                       
+                                                                        
                                     }   
 
-                                    // if($$.t == T_ERROR){
-                                    //     yyerror("Error en expresion");
-                                    // } 
                                 }
                                 ;
 
 expresionIgualdad               : expresionRelacional{
                                     if($1.t != T_LOGICO && $1.t != T_ENTERO)
                                     {   
-                                        $$.t = T_ERROR;
-                                        //yyerror("Expresion igualdad no valida para la expresion igualdad : se esperaba una expresion igualdad de tipo logica");
+                                        $$.t = T_ERROR;                                        
                                     } 
                                     else
                                     {
@@ -388,11 +413,13 @@ expresionIgualdad               : expresionRelacional{
                                     } 
                                     else {
                                         $$.t = $1.t;
+                                        $$.d = creaVarTemp();
+
+                                        emite($2, crArgPos(niv,$1.d),crArgPos(niv,$3.d),  crArgPos(niv,$$.d));
+
                                     } 
 
-                                    if($$.t == T_ERROR){
-                                        //yyerror("Error en expresion igualdad no valida");
-                                    }                                     
+                                                                      
                                 }
                                 ;
 
@@ -410,10 +437,7 @@ expresionRelacional             : expresionAditiva {
                                             $$.t = T_ERROR;
                                         }                                      
                                     }
-
-                                    // if($1.t == T_ERROR){ 
-                                    //     yyerror("Error en expresion relacional.");
-                                    // } 
+                                   
                                 };
 
 expresionAditiva                : expresionMultiplicativa   {
@@ -499,7 +523,7 @@ expresionUnaria                 : expresionSufija{
                                 } 
                                 ;
                                 
-
+// Por acabar
 expresionSufija                 : APAREN_ expresion  CPAREN_{
                                         $$.t = $2.t;
                                     }
@@ -629,8 +653,8 @@ constante                       : CTE_  {
                                 }
                                 ;
 
-operadorLogico                  :AND_      
-                                |OR_       
+operadorLogico                  :AND_      { $$ = EMULT; } 
+                                |OR_       { $$ = ESUM;  } 
                                 ;
 
 operadorIgualdad                :IGU_      { $$ = EIGUAL; } 
