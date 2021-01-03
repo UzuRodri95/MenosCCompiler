@@ -59,7 +59,7 @@ int insTdS(char *nom, int cat, int tipo, int n, int desp, int ref) ;
 SIMB obtTdS(char *nom) ;
 /* Obtiene toda la informacion asociada con un objeto de nombre, "nom", y la
    devuelve en una estructura de tipo "SIMB" (ver "libtds.h"). Si el objeto 
-   no está declarado, devuelve "T_ERROR" en el campo "tipo".                 */
+   no esta declarado, devuelve "T_ERROR" en el campo "tipo".                 */
 
 int insTdA(int telem, int nelem) ;
 /* Inserta en la Tabla de Arrays la informacion de un array con elementos de 
@@ -88,8 +88,8 @@ int cmpDom (int refx, int refy) ;
 
 void mostrarTdS () ;
 /* Muestra toda la informacion de la TDS para objetos globales y locales.
-   Se recomienda hacerlo (si "verTdS = true") al finalizar la compilación
-   de la funciom, justo antes de ("descargarContexto").                      */
+   Se recomienda hacerlo (si "verTdS = true") al finalizar la compilacion
+   de la funcion, justo antes de ("descargarContexto").                      */
 
 #endif  /* _LIBTDS_H */
 /*****************************************************************************/
