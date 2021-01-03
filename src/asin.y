@@ -50,7 +50,12 @@ int niv;
 %type <str> instruccion listaInstrucciones expresionOpcional declaracion 
 %%
 
-programa                        :{ niv = GLOBAL; dvar = 0; cargaContexto(niv); si=0; } listaDeclaraciones { if($2.t == 0) yyerror("El programa no tiene main. 2");}
+programa                        :{ niv = GLOBAL; 
+                                   dvar = 0; 
+                                   cargaContexto(niv); 
+                                   si=0; 
+                                } listaDeclaraciones { 
+                                    if($2.t == 0) yyerror("El programa no tiene main. 2");}
                                 ;
 
 listaDeclaraciones              : declaracion { $$.t = $1.t; }
@@ -119,20 +124,35 @@ tipoSimple                      : INT_ {
                                     }
                                 ;
 
-declaracionFuncion              : cabeceraFuncion { $<cent>$ = dvar; dvar = 0; } bloque { if(verTdS == TRUE) mostrarTdS(); descargaContexto(niv); niv = GLOBAL; dvar = $<cent>2; }
+declaracionFuncion              : cabeceraFuncion { 
+                                    $<cent>$ = dvar; 
+                                    dvar = 0; 
+                                } bloque { 
+                                    if(verTdS == TRUE) mostrarTdS();
+                                    descargaContexto(niv);
+                                    niv = GLOBAL;
+                                    dvar = $<cent>2; 
+                                }
                                 ;
 
 cabeceraFuncion                 : tipoSimple ID_ { niv = LOCAL; cargaContexto(niv);} APAREN_ parametrosFormales CPAREN_{
                                         if(insTdS($2,FUNCION,$1.t,niv,$5.talla,-1)){
                                            $$.n = $2;
                                            $$.t = $1.t;
-                                           $$.talla = $5.talla;   
+                                           $$.talla = $5.talla;  
+
+                                           emite(PUSHFP, crArgNul(), crArgNul(), crArgNul());
+                                           emite(FPTOP, crArgNul(), crArgNul(), crArgNul());
+                                           emite(INCTOP, crArgNul(), crArgNul(), $4.talla);
+
+                                           $$.d = CreaLans(si);
+                                           emite(ESUM,$4.d,)
+                                           emite()
                                         }
                                         else{
                                            $$.t = T_ERROR;
                                            yyerror("Ya existe variable, se ha declarado previamente");
                                         }
-                                      
                                     }
                                 ;
 
@@ -221,6 +241,7 @@ instruccionAsignacion           : ID_ ASIG_ expresion PTOCOMA_{
                                             $$.t = T_ERROR;
                                         } else{
                                             $$.t = $3.t;
+                                            emite(EASIG, crArgPos($3.d), crArgNul(), crArgPos(simb.d));
                                         }
                                         
                                         if($$.t == T_ERROR){
@@ -260,6 +281,7 @@ instruccionEntradaSalida        : READ_ APAREN_ ID_ CPAREN_ PTOCOMA_{
                                     }
                                     else{
                                         $$.t = sim.t;
+                                        emite(EREAD, crArgNul(), crArgNul(), crArgPos(niv, sim.d));
                                     }  
                                 }
                                 | PRINT_ APAREN_ expresion CPAREN_ PTOCOMA_{
@@ -270,6 +292,7 @@ instruccionEntradaSalida        : READ_ APAREN_ ID_ CPAREN_ PTOCOMA_{
                                     }
                                     else{
                                         $$.t = $3.t;
+                                        emite(EPRINT, crArgNul(), crArgNul(), crArgPos(niv,$3.d));
                                     }
 
                                     if($$.t == T_ERROR){
@@ -278,43 +301,53 @@ instruccionEntradaSalida        : READ_ APAREN_ ID_ CPAREN_ PTOCOMA_{
                                 }
                                 ;
 
-instruccionSeleccion            : IF_ APAREN_ expresion CPAREN_ instruccion ELSE_ instruccion{
-                                    if($3.t != T_ERROR || $5.t != T_ERROR){
-                                        if(($3.t != T_LOGICO && $3.t != T_ENTERO &&  $3.t != T_VACIO) || ($5.t != T_LOGICO && $5.t != T_ENTERO &&  $5.t != T_VACIO)){
-                                            $$.t = T_ERROR;
+instruccionSeleccion            : IF_ APAREN_ expresion CPAREN_ {
+                                        if($3.t != T_LOGICO){
                                             yyerror("Expresion no valida para la instruccion seleccion : se esperaba una expresion logica");
                                         }
-                                    }
-                                    
-                                }
-                                ;
-// Por terminar
 
-instruccionIteracion            : FOR_ APAREN_ expresionOpcional /*$4*/{  $<cent>$ = si; } PTOCOMA_ expresion {
-                                     if($6.t == T_LOGICO){
-                                        $$.t = $3.t;
-                                        //S.lv = CreaLans(si); 
-                                         $<cent>$ = creaLans(si); // $7                                         
-                                        //Emite( if E2.d = '1' goto X)
-                                         emite(EIGUAL,crArgPos(niv,$<cent>7.d),crArgEnt(1),crArgEtq($<cent>4.d));
-                                        
-                                        
-                                        
-                                        //S.if = CreaLans(si); 
-                                         $<cent>$ = creaLans(si); // $7    
-                                        //Emite(goto X)
-                                         emite(GOTOS,crArgPos(niv,$<cent>7.d),crArgEnt(1),crArgEtq($<cent>4.d));
-                                        //S.aux = si
-                                        $<cent>$ = si;
+                                        //S.lf, $<cent>5
+                                        $<cent>$ = CreaLans(si);
+                                        emite(EIGUAL, crArgPos(niv,$3.d), crArgEnt(0), crArgEtq(-1));
+                                    } instruccion {
+                                        //S.fin, $<cent>7
+                                        $<cent>$ = CreaLans(si);
+                                        emite(GOTOS, crArgNul(),  crArgNul(), crArgEtq(-1)); 
+                                        completaLans($<cent>5, crArgEtq(si)); //Posible error crArgEtq por crArgEnt
+                                    }ELSE_ instruccion{
+                                        completaLans($<cent>7, crArgEtq(si)); //Posible error crArgEtq por crArgEnt
+                                    }
+                                ;
+
+instruccionIteracion            : FOR_ APAREN_ expresionOpcional PTOCOMA_ { 
+                                    $<cent>$ = si; /*$5*/ 
+                                    } 
+                                    expresion PTOCOMA_ {
+                                        if($6.t != T_LOGICO){
+                                            $$.t = T_ERROR;
+                                            yyerror("Expresion no valida en el for.");
+                                        }else{
+                                            $$.t = $3.t;
+                                            //S.lv
+                                            $<cent>$ = creaLans(si); //$8    
+                                            emite(EIGUAL,crArgPos(niv,$<cent>8.d),crArgEnt(1),crArgEtq(-1));
                                             
+                                            //S.lf 
+                                            $<cent>$ = creaLans(si); //$9 
+                                            emite(GOTOS,crArgNul(),crArgNul(),crArgEtq(-1));
+
+                                            //S.aux = si
+                                            $<cent>$ = si; //$10
+                                        }    
                                     }
-                                    else
-                                    {
-                                        $$.t = T_ERROR;
-                                        yyerror("Error en expresion logica");
+                                    expresionOpcional CPAREN_ {
+                                        emite(GOTOS,crArgNul(),crArgNul(),crArgEtq($<cent>5)); //Posible error crArgEtq por crArgEnt
+                                        completaLans($<cent>8, crArgEtq(si)); //Posible error crArgEtq por crArgEnt
                                     }
-                                        
-                                  }  PTOCOMA_ expresionOpcional CPAREN_ instruccion
+                                    instruccion {
+                                        emite(GOTOS,crArgNul(),crArgNul(),crArgEtq($<cent>10)); //Posible error crArgEtq por crArgEnt
+                                        completaLans($<cent>9, crArgEtq(si)); //Posible error crArgEtq por crArgEnt
+                                    }
                                        
                                     
                                         
