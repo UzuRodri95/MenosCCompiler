@@ -19,6 +19,8 @@
 
 int dvar;
 int niv;
+int si;
+
 %}
 
 %union{
@@ -34,7 +36,7 @@ int niv;
 %token <cent>  AND_ OR_ SUMASIG_ RESASIG_ MULASIG_ DIVASIG_ IGU_ NOIGU_ MAYIGU_ MENIGU_ INC_ DEC_  MAY_ MEN_ ASIG_ NOT_ MOD_
 
 %token <cent> INT_ BOOL_ CTE_ TRUE_ FALSE_
-%type <cent> parametrosActuales 
+ 
 %type <cent> operadorAditivo operadorIgualdad operadorIncremento
 %type <cent> operadorLogico operadorMultiplicativo operadorRelacional operadorUnario
 
@@ -43,7 +45,7 @@ int niv;
 %type <exp> programa listaDeclaraciones 
   
 %type <str> tipoSimple listaParametrosFormales parametrosFormales declaracionVariable listaParametrosActuales declaracionFuncion 
-%type <str> declaracionVariableLocal cabeceraFuncion 
+%type <str> declaracionVariableLocal cabeceraFuncion parametrosActuales
 
 %type <str> constante expresion expresionIgualdad expresionRelacional expresionAditiva expresionMultiplicativa expresionSufija
 %type <str> expresionUnaria instruccionAsignacion instruccionEntradaSalida instruccionSeleccion instruccionIteracion
@@ -55,7 +57,10 @@ programa                        :{ niv = GLOBAL;
                                    cargaContexto(niv); 
                                    si=0; 
                                 } listaDeclaraciones { 
-                                    if($2.t == 0) yyerror("El programa no tiene main. 2");}
+                                    if($2.t == 0) yyerror("El programa no tiene main. 2");
+                                
+                                    emite(FIN,crArgNul(),crArgNul(),crArgNul());
+                                }
                                 ;
 
 listaDeclaraciones              : declaracion { $$.t = $1.t; }
@@ -89,6 +94,7 @@ declaracionVariable             : tipoSimple ID_ PTOCOMA_{
                                             $$.n = $2;
                                             $$.talla = $$.talla + TALLA_TIPO_SIMPLE;
                                             $$.t = $1.t;
+                                            dvar +=  $1.t; 
                                         }else{
                                             $$.t = T_ERROR;
                                             yyerror("Identificador repetido");
@@ -127,31 +133,29 @@ tipoSimple                      : INT_ {
 declaracionFuncion              : cabeceraFuncion { 
                                     $<cent>$ = dvar; 
                                     dvar = 0; 
-                                } bloque { 
+                                    
+                                } bloque {       
+                                    yyerror("bloque");                              
                                     if(verTdS == TRUE) mostrarTdS();
                                     descargaContexto(niv);
                                     niv = GLOBAL;
-                                    dvar = $<cent>2; 
+                                     yyerror("Cent"); 
+                                     dvar = $<cent>2;
+                                     printf("VAR: $<cent>$: %d",$<cent>2); 
+                                     yyerror("Cent3"); 
                                 }
                                 ;
 
-cabeceraFuncion                 : tipoSimple ID_ { niv = LOCAL; cargaContexto(niv);} APAREN_ parametrosFormales CPAREN_{
+cabeceraFuncion                 : tipoSimple ID_ { niv = LOCAL; cargaContexto(niv);  } APAREN_ parametrosFormales CPAREN_{
                                         if(insTdS($2,FUNCION,$1.t,niv,$5.talla,-1)){
                                            $$.n = $2;
                                            $$.t = $1.t;
-                                           $$.talla = $5.talla;  
-
-                                           emite(PUSHFP, crArgNul(), crArgNul(), crArgNul());
-                                           emite(FPTOP, crArgNul(), crArgNul(), crArgNul());
-                                           emite(INCTOP, crArgNul(), crArgNul(), $4.talla);
-
-                                           $$.d = CreaLans(si);
-                                           emite(ESUM,$4.d,)
-                                           emite()
+                                           $$.talla = $5.talla;        
+                                           dvar += $5.talla;                                
                                         }
                                         else{
                                            $$.t = T_ERROR;
-                                           yyerror("Ya existe variable, se ha declarado previamente");
+                                           yyerror("Ya existe variable, se ha declarado previamente");                                          
                                         }
                                     }
                                 ;
@@ -175,7 +179,7 @@ listaParametrosFormales         : tipoSimple ID_{
                                 }
                                 | tipoSimple ID_ CMA_ listaParametrosFormales{
                                      if($1.t == $4.t && $1.t != T_ERROR){
-                                         $$.t == $1.t;
+                                         $$.t = $1.t;
                                          $$.talla = $4.talla + $1.talla;
                                          
                                          int ref = insTdD($4.refe, $1.t);
@@ -187,18 +191,40 @@ listaParametrosFormales         : tipoSimple ID_{
 bloque                          : {
                                     /* vacio */
                                 }
-                                | ALLAVE_ declaracionVariableLocal listaInstrucciones RETURN_ expresion PTOCOMA_ CLLAVE_{
-                                    /* vacio */
+                                | ALLAVE_{
+                                        
+                                    emite(PUSHFP, crArgNul(), crArgNul(), crArgNul());
+                                    emite(FPTOP, crArgNul(), crArgNul(), crArgNul());
+                                        
+                                    $<cent>$ = creaLans(si);
+                                    emite(INCTOP, crArgNul(), crArgNul(), crArgEnt(-1));
+                                         
+                                }  declaracionVariableLocal listaInstrucciones RETURN_ expresion PTOCOMA_ CLLAVE_ {
+                                        
+                                   completaLans($<cent>2,crArgEnt(dvar));
+                                        
+
+                                   emite(TOPFP, crArgNul(), crArgNul(), crArgNul());
+                                   emite(FPPOP, crArgNul(), crArgNul(), crArgNul());
+                                   emite(RET, crArgNul(), crArgNul(), crArgNul());
                                 }
                                 ;
 
 declaracionVariableLocal        : /* vacio */ {
-
+                               
                                 }
                                 | declaracionVariableLocal declaracionVariable{
+                                    yyerror("XXXD");
+                                    printf("niv: %d, dvar: %d",niv,dvar);
+                                    mostrarTdS();
+                                    
                                         if(insTdS($1.n,VARIABLE,$2.t,niv,dvar,-1)){
                                           dvar += TALLA_TIPO_SIMPLE;
+                                          yyerror("declaracionVariableLocal");
+                                          mostrarTdS();
                                         }
+
+                                        yyerror("no if");
                                     }
                                 ;
 
@@ -241,7 +267,7 @@ instruccionAsignacion           : ID_ ASIG_ expresion PTOCOMA_{
                                             $$.t = T_ERROR;
                                         } else{
                                             $$.t = $3.t;
-                                            emite(EASIG, crArgPos($3.d), crArgNul(), crArgPos(simb.d));
+                                            emite(EASIG, crArgPos(niv,$3.d), crArgNul(), crArgPos(niv,simb.d));
                                         }
                                         
                                         if($$.t == T_ERROR){
@@ -292,7 +318,7 @@ instruccionEntradaSalida        : READ_ APAREN_ ID_ CPAREN_ PTOCOMA_{
                                     }
                                     else{
                                         $$.t = $3.t;
-                                        emite(EPRINT, crArgNul(), crArgNul(), crArgPos(niv,$3.d));
+                                        emite(EWRITE, crArgNul(), crArgNul(), crArgPos(niv,$3.d));
                                     }
 
                                     if($$.t == T_ERROR){
@@ -307,11 +333,11 @@ instruccionSeleccion            : IF_ APAREN_ expresion CPAREN_ {
                                         }
 
                                         //S.lf, $<cent>5
-                                        $<cent>$ = CreaLans(si);
+                                        $<cent>$ = creaLans(si);
                                         emite(EIGUAL, crArgPos(niv,$3.d), crArgEnt(0), crArgEtq(-1));
                                     } instruccion {
                                         //S.fin, $<cent>7
-                                        $<cent>$ = CreaLans(si);
+                                        $<cent>$ = creaLans(si);
                                         emite(GOTOS, crArgNul(),  crArgNul(), crArgEtq(-1)); 
                                         completaLans($<cent>5, crArgEtq(si)); //Posible error crArgEtq por crArgEnt
                                     }ELSE_ instruccion{
@@ -324,13 +350,13 @@ instruccionIteracion            : FOR_ APAREN_ expresionOpcional PTOCOMA_ {
                                     } 
                                     expresion PTOCOMA_ {
                                         if($6.t != T_LOGICO){
-                                            $$.t = T_ERROR;
+                                            //$$.t = T_ERROR;
                                             yyerror("Expresion no valida en el for.");
                                         }else{
-                                            $$.t = $3.t;
+                                            //$$.t = $3.t;
                                             //S.lv
                                             $<cent>$ = creaLans(si); //$8    
-                                            emite(EIGUAL,crArgPos(niv,$<cent>8.d),crArgEnt(1),crArgEtq(-1));
+                                            emite(EIGUAL,crArgPos(niv,$6.d),crArgEnt(1),crArgEtq(-1));
                                             
                                             //S.lf 
                                             $<cent>$ = creaLans(si); //$9 
@@ -372,7 +398,7 @@ expresionOpcional               : /* vacı́o */{
                                             else {
                                                 $$.t = simb.t;
                                                 // Id = E
-                                                emite(EASIG, crArgPos($3.d),crArgNul(), crArgPos(simb.d));
+                                                emite(EASIG, crArgPos(niv,$3.d),crArgNul(), crArgPos(niv,simb.d));
 
                                             }
                                         }
@@ -414,7 +440,7 @@ expresion                       : expresionIgualdad{
                                           emite($2, crArgPos(niv,$1.d),crArgPos(niv,$3.d),  crArgPos(niv,$$.d));                                           
                                           
                                           emite(EMENEQ, crArgPos(niv,$$.d),crArgEnt(1),  crArgEtq(si +2)); 
-                                          emite(EASIG, crArgEnt(1),crArgNul(), crArgPos($$.d));
+                                          emite(EASIG, crArgEnt(1),crArgNul(), crArgPos(niv,$$.d));
                                         } 
                                        
                                                                         
@@ -556,9 +582,10 @@ expresionUnaria                 : expresionSufija{
                                 } 
                                 ;
                                 
-// Por acabar
 expresionSufija                 : APAREN_ expresion  CPAREN_{
-                                        $$.t = $2.t;
+                                        $$.t = $2.t;                                        
+                                        $$.d = $2.d;
+                                        
                                     }
                                 | ID_ operadorIncremento{
                                         SIMB simb = obtTdS($1);
@@ -572,9 +599,10 @@ expresionSufija                 : APAREN_ expresion  CPAREN_{
                                             $$.t = simb.t;
 
                                             $$.d = creaVarTemp();
-                                            emite($1, crArgPos(niv,simb.d), crArgEnt(1), crArgPos(niv,simb.d));
+                                           
                                             emite(EASIG, crArgPos(niv,simb.d), crArgNul(), crArgPos(niv,$$.d));
-
+                                            emite($2, crArgPos(niv,simb.d), crArgEnt(1), crArgPos(niv,simb.d));
+                                         
                                         }
 
                                         if($$.t == T_ERROR){
@@ -595,22 +623,18 @@ expresionSufija                 : APAREN_ expresion  CPAREN_{
                                             }
                                             if($3.t == T_ENTERO && simb.t == T_ARRAY){
                                                     $$.t = simb.t;
-                                                    // 0x0040 0000 - ""04
-                                                    // arr[4]
-                                                    // res = arr[2] 
-
+                                                    
                                                     emite(EASIG, crArgPos(niv,$3.d * $3.talla), crArgNul(), crArgPos(niv,simb.d));
                                                     $$.d = creaVarTemp();
-                                                    TIPO_ARG aux =  crArgPos(simb.d); 
-
-                                                    emite(EAV, crArgPos(niv,simb.d), crArgEnt(aux.val), crArgPos(niv,$$.d));
+                                                   
+                                                    emite(EAV, crArgPos(niv,simb.d), crArgPos(niv,$3.d), crArgPos(niv,$$.d));                                                    
 
                                             } 
                                         }
                                         
                                     } 
                                 
-                                | ID_ APAREN_ parametrosActuales CPAREN_{
+                                | ID_ APAREN_{ emite(INCTOP,crArgNul(),crArgNul(),crArgEnt(TALLA_TIPO_SIMPLE)); }  parametrosActuales CPAREN_{
                                         SIMB simb = obtTdS($1);
                                         if(simb.t == T_ERROR){
                                             $$.t = T_ERROR;
@@ -619,14 +643,20 @@ expresionSufija                 : APAREN_ expresion  CPAREN_{
                                             if(comprobar.tipo ==  T_ERROR){
                                                 $$.t = T_ERROR;
                                             }
-                                            else if(comprobar.tipo != $3){
+                                            else if(comprobar.tipo != $4.t){ // ¿$4?
                                                 $$.t = T_ERROR;
                                                
                                             }
                                             else{
                                                 $$.t = comprobar.tipo;
-                                                $$.talla = comprobar.tsp;
+                                                $$.talla = comprobar.tsp;                                             
+                                                
+                                                emite(EPUSH,crArgNul(),crArgNul(),crArgEnt(si+2));
+                                                emite(CALL,crArgNul(),crArgNul(),crArgEtq(simb.d)); // ¿?¿?¿?¿?¿? .ref
+                                                emite(DECTOP,crArgNul(),crArgNul(),crArgEnt(comprobar.tsp));
+
                                                 $$.d = creaVarTemp();
+                                                emite(EPOP,crArgNul(),crArgNul(),crArgPos(niv,$$.d));
 
                                                
                                             } 
@@ -653,18 +683,23 @@ expresionSufija                 : APAREN_ expresion  CPAREN_{
                                 ;
 
 parametrosActuales              : /* vacı́o */{
-                                    $$ = T_VACIO;
+                                    $$.t = T_VACIO;
                                 }
                                 | listaParametrosActuales{
-                                    $$ = $1.t;
+                                    $$.t = $1.t;
                                 }
                                 ;
 
 listaParametrosActuales         : expresion{
-                                    emite(EPUSH,crArgNul(),crArgNul(),crArgPos(niv,$$.d));
+                                    //$$.t = $1.t;
+                                    emite(EPUSH,crArgNul(),crArgNul(),crArgPos(niv,$1.d));
                                 }
-                                | expresion CMA_ {emite(EPUSH,crArgNul(),crArgNul(),crArgPos(niv,$$.d));} listaParametrosActuales{
-                                    // tipos?
+                                | expresion CMA_ { 
+                                   
+                                     emite(EPUSH,crArgNul(),crArgNul(),crArgPos(niv,$1.d));
+                                     //$$.t = $1.t;
+                                    } listaParametrosActuales{
+                                    
                                 }
                                 ;
 
@@ -682,7 +717,7 @@ constante                       : CTE_  {
                                 | FALSE_  {
                                     $$.t = T_LOGICO;
                                     $$.d = creaVarTemp();
-                                    emite(EASIG,crArgEnt(0),crArgNul(),crArgPos(niv,$$.d);
+                                    emite(EASIG,crArgEnt(0),crArgNul(),crArgPos(niv,$$.d));
                                 }
                                 ;
 
