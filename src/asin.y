@@ -360,9 +360,11 @@ instruccionIteracion            : FOR_ APAREN_ expresionOpcional PTOCOMA_ {
                                             //S.lf 
                                             $<cent>$ = creaLans(si); //$9 
                                             emite(GOTOS,crArgNul(),crArgNul(),crArgEtq(-1));
-
+                                          
                                             //S.aux = si
                                             $<cent>$ = si; //$10
+
+                                            
                                         }    
                                     }
                                     expresionOpcional CPAREN_ {
