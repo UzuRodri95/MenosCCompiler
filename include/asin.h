@@ -105,8 +105,9 @@ union YYSTYPE
     int cent;    //VALOR DE LA CTE NUMERICA ENTERA
     EXP exp;     //PARA LAS EXPRESIONES
     STR str;     //PARA LOS ELEMENTOS CON TALLA
+    REFES refe;   // Para el "for" con 3 atributos simples    
 
-#line 110 "asin.h"
+#line 111 "asin.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

@@ -28,6 +28,7 @@ int si;
     int cent;    //VALOR DE LA CTE NUMERICA ENTERA
     EXP exp;     //PARA LAS EXPRESIONES
     STR str;     //PARA LOS ELEMENTOS CON TALLA
+    REFES refe;   // Para el "for" con 3 atributos simples    
 }
 
 %token WHILE_ FOR_ IF_ ELSE_  PRINT_ READ_ RETURN_ 
@@ -54,12 +55,24 @@ int si;
 
 programa                        :{ niv = GLOBAL; 
                                    dvar = 0; 
+                                   si=0;
                                    cargaContexto(niv); 
-                                   si=0; 
+
+                                   $<refe>$.ref1 = creaLans(si);
+                                   emite(INCTOP,crArgNul(),crArgNul(),crArgEnt(-1));
+                                   
+                                   $<refe>$.ref2 = creaLans(si);
+                                   emite(GOTOS,crArgNul(),crArgNul(),crArgEnt(-1));
+                                    
                                 } listaDeclaraciones { 
-                                    if($2.t == 0) yyerror("El programa no tiene main. 2");
-                                
+                                    if($2.t == 0) yyerror("El programa no tiene main. 2");                                
                                     emite(FIN,crArgNul(),crArgNul(),crArgNul());
+
+                                    completaLans($<refe>1.ref1,crArgEnt(dvar));
+                                    
+                                    SIMB simb =  obtTdS("main");
+
+                                    completaLans($<refe>1.ref2,crArgEnt(simb.d));
                                 }
                                 ;
 
@@ -92,10 +105,10 @@ declaracion                     : declaracionVariable{
 declaracionVariable             : tipoSimple ID_ PTOCOMA_{
                                         //if(insTdS($2,VARIABLE,$1.t,niv,dvar,-1)){
                                             $$.n = $2;
-                                          $$.talla = TALLA_TIPO_SIMPLE;
+                                            $$.talla = TALLA_TIPO_SIMPLE;
                                             $$.t = $1.t;
                                         //    dvar +=  $1.talla; 
-                                            printf("%d",dvar);
+                                            
                                         /**}else{  
                                             $$.t = T_ERROR;
                                             yyerror("Identificador repetido");
@@ -113,6 +126,7 @@ declaracionVariable             : tipoSimple ID_ PTOCOMA_{
                                                 $$.n = $2;
                                                 $$.t = $1.t;
                                                 $$.talla = $$.talla + numelem * TALLA_TIPO_SIMPLE;
+                                                
                                             }
                                             else{
                                                 yyerror("Identificador repetido");
@@ -136,14 +150,10 @@ declaracionFuncion              : cabeceraFuncion {
                                     dvar = 0; 
                                     
                                 } bloque {       
-                                    yyerror("bloque");                              
                                     if(verTdS == TRUE) mostrarTdS();
                                     descargaContexto(niv);
                                     niv = GLOBAL;
-                                     yyerror("Cent"); 
                                      dvar = $<cent>2;
-                                     printf("VAR: $<cent>$: %d",$<cent>2); 
-                                     yyerror("Cent3"); 
                                 }
                                 ;
 
@@ -193,15 +203,19 @@ bloque                          : {
                                     /* vacio */
                                 }
                                 | ALLAVE_{
-                                        
+                                    
                                     emite(PUSHFP, crArgNul(), crArgNul(), crArgNul());
                                     emite(FPTOP, crArgNul(), crArgNul(), crArgNul());
                                         
                                     $<cent>$ = creaLans(si);
                                     emite(INCTOP, crArgNul(), crArgNul(), crArgEnt(-1));
                                          
-                                }  declaracionVariableLocal listaInstrucciones RETURN_ expresion PTOCOMA_ CLLAVE_ {
-                                        
+                                }  declaracionVariableLocal listaInstrucciones RETURN_ expresion  PTOCOMA_ CLLAVE_ {
+                                   INF inf  = obtTdD(-1);
+
+                                   int dvret = TALLA_SEGENLACES + inf.tsp +TALLA_TIPO_SIMPLE;    
+                                    
+                                   emite(EASIG,crArgPos(niv,$6.d),crArgNul(),crArgPos(niv,-dvret));
                                    completaLans($<cent>2,crArgEnt(dvar));
                                         
 
@@ -313,7 +327,7 @@ instruccionEntradaSalida        : READ_ APAREN_ ID_ CPAREN_ PTOCOMA_{
                                     if ($3.t == T_ERROR) { 
                                        $$.t = T_ERROR;
                                     }else if ($3.t != T_ENTERO) {
-                                        $$.t = T_ERROR;                                            
+                                        $$.t = T_ERROR;    
                                     }
                                     else{
                                         $$.t = $3.t;
@@ -321,7 +335,8 @@ instruccionEntradaSalida        : READ_ APAREN_ ID_ CPAREN_ PTOCOMA_{
                                     }
 
                                     if($$.t == T_ERROR){
-                                        yyerror("Expresion no valida para la instruccion salida : se esperaba expresion entera");
+                                      
+                                        yyerror("Expresion no valida para la instruccion salida(PRINT) : se esperaba expresion entera");
                                     } 
                                 }
                                 ;
@@ -354,26 +369,30 @@ instruccionIteracion            : FOR_ APAREN_ expresionOpcional PTOCOMA_ {
                                         }else{
                                             //$$.t = $3.t;
                                             //S.lv
-                                            $<cent>$ = creaLans(si); //$8    
+                                            $<refe>$.ref1  = creaLans(si); //$8    
+                                          
+
                                             emite(EIGUAL,crArgPos(niv,$6.d),crArgEnt(1),crArgEtq(-1));
 
                                             //S.lf 
-                                            $<cent>$ = creaLans(si); //$9 
+                                            $<refe>$.ref2  = creaLans(si); //$8 
+                                            
                                             emite(GOTOS,crArgNul(),crArgNul(),crArgEtq(-1));
                                           
                                             //S.aux = si
-                                            $<cent>$ = si; //$10
-
+                                            $<refe>$.ref3 = si; //$8
                                             
                                         }    
                                     }
                                     expresionOpcional CPAREN_ {
+                                      
                                         emite(GOTOS,crArgNul(),crArgNul(),crArgEtq($<cent>5)); //Posible error crArgEtq por crArgEnt
-                                        completaLans($<cent>8, crArgEtq(si)); //Posible error crArgEtq por crArgEnt
+                                        completaLans($<refe>8.ref1 , crArgEtq(si)); //Posible error crArgEtq por crArgEnt
                                     }
                                     instruccion {
-                                        emite(GOTOS,crArgNul(),crArgNul(),crArgEtq($<cent>10)); //Posible error crArgEtq por crArgEnt
-                                        completaLans($<cent>9, crArgEtq(si)); //Posible error crArgEtq por crArgEnt
+                                        emite(GOTOS,crArgNul(),crArgNul(),crArgEtq($<refe>8.ref3)); //Posible error crArgEtq por crArgEnt
+                                        completaLans($<refe>8.ref2 , crArgEtq(si)); //Posible error crArgEtq por crArgEnt
+                                         
                                     }
                                        
                                     
@@ -387,18 +406,27 @@ expresionOpcional               : /* vacı́o */{
                                     $$.t = $1.t;
                                 }
                                 | ID_ ASIG_ expresion{
+
+                                    
+                                   
                                     SIMB simb = obtTdS($1);
+
+                                    //yyerror("opcional");
+                                   // printf("Valor ID.t=%d, valor $3.d=%d:",simb.t,$3.t);
+                                     
                                     if (simb.t == T_ERROR) {
                                         $$.t = T_ERROR;
                                     } 
                                     else{
                                         if ($3.t != T_ERROR) {
-                                            
+                                           
                                             if((simb.t != $3.t) || (simb.t == $3.t && simb.t != T_ENTERO && simb.t != T_LOGICO)) {
                                                 $$.t = T_ERROR;
+                                                       
                                             } 
                                             else {
-                                                $$.t = simb.t;
+                                         
+                                                $$.t = $3.t;
                                                 // Id = E
                                                 emite(EASIG, crArgPos(niv,$3.d),crArgNul(), crArgPos(niv,simb.d));
                                             }
@@ -411,14 +439,19 @@ expresionOpcional               : /* vacı́o */{
                                 ;
 
 expresion                       : expresionIgualdad{
+   
                                     if ($1.t != T_LOGICO && $1.t != T_ENTERO ) {
                                         $$.t = T_ERROR;
+                                       
                                     }else{
                                         $$.t = $1.t;
+                                       
                                     }                                        
                                 
                                 }
                                 | expresion operadorLogico expresionIgualdad{
+                                      //yyerror(".");
+                                      //printf("t1  : %d, t2 %d ",$1.t,$3.t);
                                     if ($1.t != T_ERROR && $3.t != T_ERROR) {
                                         if ($1.t != T_LOGICO) {
                                             $$.t = T_ERROR;
@@ -452,9 +485,12 @@ expresion                       : expresionIgualdad{
                                 ;
 
 expresionIgualdad               : expresionRelacional{
+     
                                     if($1.t != T_LOGICO && $1.t != T_ENTERO)
                                     {   
-                                        $$.t = T_ERROR;                                        
+                                        $$.t = T_ERROR;
+                                       
+                                                                       
                                     } 
                                     else
                                     {
@@ -463,7 +499,8 @@ expresionIgualdad               : expresionRelacional{
                                         
                                 }
                                 | expresionIgualdad operadorIgualdad expresionRelacional{
-                                    if ($1.t != T_ERROR && $3.t != T_ERROR) {
+                                      
+                                    if ($1.t == T_ERROR && $3.t == T_ERROR) {
                                         if ($1.t != T_LOGICO && $1.t != T_ENTERO ) {
                                             $$.t = T_ERROR;
                                         } else if ($3.t != T_LOGICO && $3.t != T_ENTERO) {
@@ -473,9 +510,9 @@ expresionIgualdad               : expresionRelacional{
                                         }
                                     } 
                                     else {
-                                        $$.t = $1.t;
+                                        $$.t = T_LOGICO;
                                         $$.d = creaVarTemp();
-
+                                     
                                         emite($2, crArgPos(niv,$1.d),crArgPos(niv,$3.d),  crArgPos(niv,$$.d));
 
                                     } 
@@ -486,6 +523,7 @@ expresionIgualdad               : expresionRelacional{
 
 expresionRelacional             : expresionAditiva {
                                     $$.t = $1.t;
+                                 
                                 }
                                 | expresionRelacional operadorRelacional expresionAditiva{
                                     if ($1.t != T_ERROR && $3.t != T_ERROR) {
@@ -503,6 +541,7 @@ expresionRelacional             : expresionAditiva {
 
 expresionAditiva                : expresionMultiplicativa   {
                                     $$.t = $1.t;
+                                       
                                 }
                                 | expresionAditiva operadorAditivo expresionMultiplicativa{
                                     if ($1.t == $3.t && $3.t == T_ENTERO){
@@ -522,6 +561,7 @@ expresionAditiva                : expresionMultiplicativa   {
 
 expresionMultiplicativa         : expresionUnaria{
                                         $$.t = $1.t;
+                                     
                                 }
                                 | expresionMultiplicativa operadorMultiplicativo expresionUnaria{
                                     if ($1.t == T_ENTERO && $3.t == T_ENTERO) {
@@ -542,15 +582,22 @@ expresionMultiplicativa         : expresionUnaria{
 
 expresionUnaria                 : expresionSufija{
                                     $$.t = $1.t;
+                                     
                                 }
                                 | operadorUnario expresionUnaria {
+                                    
                                     if ($2.t != T_ERROR) {
-                                        if ( $1 == NOT_) {
+
+                                     //          yyerror(".");
+                                    //printf("$1: %s ",NOT_);
+                                      //printf("$1: %d ",$1 );
+                                        if ( $1 == NOT) {
                                             if ($2.t != T_LOGICO) {
                                                 $$.t = T_ERROR;
+                                                
                                             } else { 
                                                 $$.t = $2.t;                                                
-                                               
+                                        
                                                 $$.d = creaVarTemp();
                                                 emite(EDIF,  crArgEnt(1),crArgPos(niv,$2.d), crArgPos(niv,$$.d));
                                                 
@@ -624,7 +671,8 @@ expresionSufija                 : APAREN_ expresion  CPAREN_{
                                                 $$.t = T_ERROR;
                                             }
                                             if($3.t == T_ENTERO && simb.t == T_ARRAY){
-                                                    $$.t = simb.t;
+                                                    DIM dim =  obtTdA(simb.ref);
+                                                    $$.t = dim.telem;
                                                     
                                                     emite(EASIG, crArgPos(niv,$3.d * $3.talla), crArgNul(), crArgPos(niv,simb.d));
                                                     $$.d = creaVarTemp();
@@ -652,7 +700,7 @@ expresionSufija                 : APAREN_ expresion  CPAREN_{
                                                 $$.t = comprobar.tipo;
                                                 $$.talla = comprobar.tsp;                                             
                                                 
-                                                emite(EPUSH,crArgNul(),crArgNul(),crArgEnt(si+2));
+                                                //emite(EPUSH,crArgNul(),crArgNul(),crArgEnt(si+2));
                                                 emite(CALL,crArgNul(),crArgNul(),crArgEtq(simb.d)); // ¿?¿?¿?¿?¿? .ref
                                                 emite(DECTOP,crArgNul(),crArgNul(),crArgEnt(comprobar.tsp));
 
@@ -746,7 +794,7 @@ operadorMultiplicativo          : POR_     { $$ = EMULT; }
 
 operadorUnario                  : MAS_     { $$ = ESUM; } 
                                 | MENOS_   { $$ = EDIF; } 
-                                | NOT_     
+                                | NOT_     { $$ = NOT;  } 
                                 ;
 
 operadorIncremento              : INC_     { $$ = ESUM; } 

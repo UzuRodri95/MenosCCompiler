@@ -13,6 +13,7 @@
 #define ARG_ETIQUETA  2
 #define ARG_NULO      3
 /********************************* Instrucciones del Codigo Tres Direcciones */
+
 #define ESUM          0
 #define EDIF          1
 #define EMULT         2
@@ -42,6 +43,8 @@
 #define TOPFP        26
 #define INCTOP       27
 #define DECTOP       28
+
+
 /*************************** Variables globales de uso en todo el compilador */
 int si;                       /* Desplazamiento en el Segmento de Codigo     */
 

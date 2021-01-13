@@ -8,6 +8,7 @@
 /****************************************************** Constantes generales */
 #define TRUE  1
 #define FALSE 0
+#define NOT          100
 /************************************* Variables externas definidas en el AL */
 extern int yylex();
 extern int yyparse();
@@ -36,6 +37,14 @@ typedef struct str {                        /* Estructura para las estructuras c
     int refe;
     int d;      //DESPLAZAMIENTO
 }   STR;
+typedef struct refes // Para atributos con 2 o 3 ref.auxiliares
+{
+    int ref1;
+    int ref2;
+    int ref3;
+} REFES;
+
+
 
 /********************************* Funciones y variables externas auxiliares */
 extern int verbosidad;                   /* Flag si se desea una traza       */
