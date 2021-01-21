@@ -65,8 +65,7 @@ programa                        :{ niv = GLOBAL;
                                    emite(GOTOS,crArgNul(),crArgNul(),crArgEnt(-1));
                                     
                                 } listaDeclaraciones { 
-                                    if($2.t == 0) yyerror("El programa no tiene main. 2");                                
-                                    emite(FIN,crArgNul(),crArgNul(),crArgNul());
+                                    if($2.t == 0) yyerror("El programa no tiene main. 2");   
 
                                     completaLans($<refe>1.ref1,crArgEnt(dvar));
                                     
@@ -158,11 +157,10 @@ declaracionFuncion              : cabeceraFuncion {
                                 ;
 
 cabeceraFuncion                 : tipoSimple ID_ { niv = LOCAL; cargaContexto(niv);  } APAREN_ parametrosFormales CPAREN_{
-                                        if(insTdS($2,FUNCION,$1.t,niv,$5.talla,-1)){
+                                        if(insTdS($2,FUNCION,$1.t, GLOBAL, si, $5.t)){
                                            $$.n = $2;
                                            $$.t = $1.t;
-                                           $$.talla = $5.talla;        
-                                           dvar += $5.talla;                                
+                                           $$.talla = $5.talla;                                      
                                         }
                                         else{
                                            $$.t = T_ERROR;
@@ -172,7 +170,7 @@ cabeceraFuncion                 : tipoSimple ID_ { niv = LOCAL; cargaContexto(ni
                                 ;
 
 parametrosFormales              : /* vacio */{
-                                        $$.t = T_VACIO;
+                                        $$.t = insTdD(-1,T_VACIO);
                                         $$.talla = 0;
                                     }
                                 | listaParametrosFormales{
@@ -182,7 +180,7 @@ parametrosFormales              : /* vacio */{
                                 ;
 
 listaParametrosFormales         : tipoSimple ID_{
-                                    $$.t = $1.t;
+                                    $$.t = insTdD(-1,$1.t);
                                     $$.talla = TALLA_SEGENLACES + $1.talla;
                                     int ref = insTdD(-1,$1.t);
                                     $$.refe = ref; 
@@ -190,7 +188,7 @@ listaParametrosFormales         : tipoSimple ID_{
                                 }
                                 | tipoSimple ID_ CMA_ listaParametrosFormales{
                                      if($1.t == $4.t && $1.t != T_ERROR){
-                                         $$.t = $1.t;
+                                         $$.t = insTdD($4.t, $1.t);
                                          $$.talla = $4.talla + $1.talla;
                                          
                                          int ref = insTdD($4.refe, $1.t);
@@ -683,7 +681,9 @@ expresionSufija                 : APAREN_ expresion  CPAREN_{
                                         
                                     } 
                                 
-                                | ID_ APAREN_{ emite(INCTOP,crArgNul(),crArgNul(),crArgEnt(TALLA_TIPO_SIMPLE)); }  parametrosActuales CPAREN_{
+                                | ID_ APAREN_{ 
+                                    emite(INCTOP,crArgNul(),crArgNul(),crArgEnt(TALLA_TIPO_SIMPLE)); 
+                                }  parametrosActuales CPAREN_{
                                         SIMB simb = obtTdS($1);
                                         if(simb.t == T_ERROR){
                                             $$.t = T_ERROR;
@@ -732,7 +732,7 @@ expresionSufija                 : APAREN_ expresion  CPAREN_{
                                 ;
 
 parametrosActuales              : /* vacı́o */{
-                                    $$.t = T_VACIO;
+                                    $$.t = insTdD(-1, T_VACIO);
                                 }
                                 | listaParametrosActuales{
                                     $$.t = $1.t;
@@ -740,15 +740,15 @@ parametrosActuales              : /* vacı́o */{
                                 ;
 
 listaParametrosActuales         : expresion{
-                                    //$$.t = $1.t;
+                                    $$.t = insTdD(-1, $1.t);
                                     emite(EPUSH,crArgNul(),crArgNul(),crArgPos(niv,$1.d));
                                 }
                                 | expresion CMA_ { 
-                                   
-                                     emite(EPUSH,crArgNul(),crArgNul(),crArgPos(niv,$1.d));
-                                     //$$.t = $1.t;
-                                    } listaParametrosActuales{
                                     
+                                    emite(EPUSH,crArgNul(),crArgNul(),crArgPos(niv,$1.d));
+                                    
+                                } listaParametrosActuales{
+                                    $$.t = insTdD($4.t, $1.t);
                                 }
                                 ;
 

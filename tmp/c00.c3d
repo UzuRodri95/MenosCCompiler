@@ -1,5 +1,5 @@
   0 INCTOP              ,            ,  i:   0    
-  1 GOTOS               ,            ,  i:   0    
+  1 GOTOS               ,            ,  i:   2    
   2 PUSHFP              ,            ,            
   3 FPTOP               ,            ,            
   4 INCTOP              ,            ,  i:  17    
@@ -26,4 +26,3 @@
  25 TOPFP               ,            ,            
  26 FPPOP               ,            ,            
  27 RET                 ,            ,            
- 28 FIN                 ,            ,            
